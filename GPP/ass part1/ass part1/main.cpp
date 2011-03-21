@@ -12,7 +12,7 @@ using namespace std;
 
 #include "Sphere.h"
 
-#define NUM_SPHERES 2000
+#define NUM_SPHERES 2
 #define UPDATE_INTERVAL 10
 
 Sphere spheres[NUM_SPHERES];
@@ -63,7 +63,7 @@ void init(void)
 	
 	QueryPerformanceFrequency( &frequency );
 	freq = (double)frequency.QuadPart / 1000.0, totalTime = 0.0;
-
+	/*
 	for(int i = 0; i < NUM_SPHERES; i++)
 	{
 		spheres[i].m_position.m_fX = randf() * roomSize * 2.0f - roomSize;
@@ -79,11 +79,11 @@ void init(void)
 
 		//spheres[i].m_radius = 2;
 	}
-	
-	//spheres[0].m_position = Vector3(-2.0f, 0.0f, 0.0f);
-	//spheres[0].m_velocity = Vector3(0.5f, 0, 0);
-	//spheres[1].m_position = Vector3(2.0f, 0.0f, 0.0f);
-	//spheres[1].m_velocity = Vector3(-0.5f, 0, 0);
+	*/
+	spheres[0].m_position = Vector3(-2.0f, 0.0f, 0.0f);
+	spheres[0].m_velocity = Vector3(0.5f, 0, 0);
+	spheres[1].m_position = Vector3(2.0f, 0.0f, 0.0f);
+	spheres[1].m_velocity = Vector3(-0.5f, 0, 0);
 }
 
 void display(void)

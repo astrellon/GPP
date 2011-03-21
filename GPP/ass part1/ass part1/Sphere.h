@@ -7,10 +7,11 @@ typedef struct _Sphere
 	Vector3 m_position;
 	Vector3 m_velocity;
 	Vector3 m_forces;
+	//Vector3 m_temp_velo;
 
 	_Sphere();
 
-	_Sphere(const _Sphere &sSphere);
+	//_Sphere(const _Sphere &sSphere);
 
 	_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass);
 	

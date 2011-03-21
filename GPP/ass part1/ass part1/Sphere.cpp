@@ -4,17 +4,18 @@
 
 using namespace std;
 
-Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_red(0.0f)
+Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_red(1.0f)
 {
 }
-
+/*
 Sphere::_Sphere(const _Sphere &sSphere) : m_mass(sSphere.m_mass), m_radius(sSphere.m_radius), m_red(sSphere.m_red)
 {
 	m_position = sSphere.m_position;
 	m_velocity = sSphere.m_velocity;
-	m_forces = sSphere.m_forces;
-}
+	//m_forces = sSphere.m_forces;
 
+}
+*/
 Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass) : m_radius(fRadius), m_mass(fMass), m_red(0.0f)
 {
 	m_position = vc3Position;
@@ -40,12 +41,12 @@ void Sphere::update(const float &fDt)
 	}
 	else
 	{
-		m_forces.m_fY -= 9.8f * m_mass;
+		//m_forces.m_fY -= 9.8f * m_mass;
 	}
 	Vector3 acc = m_forces / m_mass;
 	m_velocity += fDt * 0.5f * acc;
 	m_position += m_velocity * fDt;
-	m_velocity *= 0.975f;
+	//m_velocity *= 0.975f;
 
 	if(m_position.m_fX < -roomSize && m_velocity.m_fX < 0)
 	{
@@ -76,10 +77,15 @@ void Sphere::collideWith(const float &fDt, Sphere &sSphere)
 	float x = length(toCenter) - m_radius - sSphere.m_radius;
 	if(x < 0)
 	{
-		//Vector3 vs = sSphere.m_velocity * dot3(sSphere.m_velocity, toCenter);
-		m_forces += -500.0f * x * toCenter /*- 1.04f * vs*/;
+		Vector3 d = normalize(toCenter);
+		float dot = dot3(normalize(sSphere.m_velocity), d);
+		Vector3 vs = sSphere.m_velocity * dot / fDt;
 
-		//vs = m_velocity * dot3(m_velocity, toCenter);
-		sSphere.m_forces -= -500.0f * x * toCenter/* - 1.04f * vs*/;
+		//m_temp_velo += 100 * vs * sSphere.m_mass;
+		m_forces += /*-500.0f * x * toCenter */ 3 * vs * sSphere.m_mass;
+
+		vs = m_velocity * dot3(normalize(m_velocity), d) / fDt;
+		//sSphere.m_temp_velo += -100 * vs * m_mass;
+		sSphere.m_forces -= /*-500.0f * x * toCenter*/ 3 * vs * m_mass;
 	}
 }
