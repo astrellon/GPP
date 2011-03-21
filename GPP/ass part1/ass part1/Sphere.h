@@ -2,6 +2,13 @@
 
 #include <Vector3.hpp>
 
+#ifndef isnan
+inline bool isnan(double x) {
+    return x != x;
+}
+#endif
+
+
 typedef struct _Sphere
 {
 	Vector3 m_position;

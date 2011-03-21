@@ -70,9 +70,9 @@ void init(void)
 		spheres[i].m_position.m_fY = randf() * NUM_SPHERES * 0.05f - roomSize;
 		spheres[i].m_position.m_fZ = randf() * roomSize * 2.0f - roomSize;
 
-		//spheres[i].m_velocity.m_fX = randf() * roomSize * 2.0f - roomSize;
-		//spheres[i].m_velocity.m_fY = randf() * roomSize * 2.0f - roomSize;
-		//spheres[i].m_velocity.m_fZ = randf() * roomSize * 2.0f - roomSize;
+		spheres[i].m_velocity.m_fX = randf() * roomSize * 2.0f - roomSize;
+		spheres[i].m_velocity.m_fY = randf() * roomSize * 2.0f - roomSize;
+		spheres[i].m_velocity.m_fZ = randf() * roomSize * 2.0f - roomSize;
 		spheres[i].m_radius = randf() * 0.5f + 0.5f;
 		spheres[i].m_mass = spheres[i].m_radius * 5;
 		spheres[i].m_red = spheres[i].m_radius - 0.5f;
@@ -80,10 +80,11 @@ void init(void)
 		//spheres[i].m_radius = 2;
 	}
 	*/
-	spheres[0].m_position = Vector3(-2.0f, 0.0f, 0.0f);
-	spheres[0].m_velocity = Vector3(0.5f, 0, 0);
-	spheres[1].m_position = Vector3(2.0f, 0.0f, 0.0f);
-	spheres[1].m_velocity = Vector3(-0.5f, 0, 0);
+	spheres[0].m_position = Vector3(-5.0f, 0.0f, 0.0f);
+	spheres[0].m_velocity = Vector3(2.5f, 0, 0);
+	spheres[0].m_red = 0.3;
+	spheres[1].m_position = Vector3(5.0f, 0.0f, 0.0f);
+	spheres[1].m_velocity = Vector3(-2.5f, 0, 0);
 }
 
 void display(void)
@@ -151,7 +152,7 @@ void updateLoop(int value)
 	{
 		QueryPerformanceCounter(&timeEnd);
 		double dTime = ((double)timeEnd.QuadPart - (double)timeStart.QuadPart)/freq;
-		cout << " Time (ms): " << dTime << endl;
+		//cout << " Time (ms): " << dTime << endl;
 		count = 0;
 	}
 
