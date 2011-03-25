@@ -2,6 +2,9 @@
 
 #include "Vector3.h"
 
+#include <iostream>
+using namespace std;
+
 FORCELINE Vector3::_Vector3()
 {
 }
@@ -56,7 +59,7 @@ FORCELINE static const _Vector3 &operator /=(_Vector3 &lhs, const float &rhs)
 
 FORCELINE float lengthSquared(const Vector3 &vc3Vector)
 {
-	return dot(vc3Vector.m_v128, vc3Vector.m_v128);
+	return dot3(vc3Vector, vc3Vector);
 }
 
 FORCELINE float length(const Vector3 &vc3Vector)
@@ -95,12 +98,13 @@ FORCELINE float dot3(const _Vector3 &lhs, const _Vector3 &rhs)
 
 FORCELINE Vector3 cross3(const _Vector3 &lhs, const _Vector3 &rhs)
 {
-	//__m128 v1 = _mm_shuffle_ps(lhs, rhs, _MM_SHUFFLE(
-	return Vector3();
-	//return Vector3(
-//		lhs.m_fY * rhs.m_fZ - lhs.m_fZ * rhs.m_fY,
-		//lhs.m_fZ * rhs.m_fX - lhs.m_fX * rhs.m_fZ,
-		//lhs.m_fX * rhs.m_fY - lhs.m_fY * rhs.m_fX);
+	__m128 v1 = _mm_shuffle_ps(lhs.m_v128, lhs.m_v128, _MM_SHUFFLE(0, 0, 2, 1));
+	__m128 v2 = _mm_shuffle_ps(rhs.m_v128, rhs.m_v128, _MM_SHUFFLE(0, 1, 0, 2));
+	__m128 v3 = _mm_mul_ps(v1, v2);
+	v1 = _mm_shuffle_ps(lhs.m_v128, lhs.m_v128, _MM_SHUFFLE(0, 1, 0, 2));
+	v2 = _mm_shuffle_ps(rhs.m_v128, rhs.m_v128, _MM_SHUFFLE(0, 0, 2, 1));
+	__m128 v4 = _mm_mul_ps(v1, v2);
+	return Vector3(_mm_sub_ps(v3, v4));
 }
 
 FORCELINE static const Vector3 operator +(const Vector3 &vc3Vector1, const Vector3 &vc3Vector2)

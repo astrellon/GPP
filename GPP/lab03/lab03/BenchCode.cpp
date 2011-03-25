@@ -19,7 +19,7 @@ FORCEINLINE ostream &operator<<(ostream &os, const Vector3 &v)
 	return os;
 }
 
-int notmain()
+int main()
 {
 
 	/* create a list of random vectors */
@@ -70,4 +70,5 @@ int notmain()
 	int IRand = (int)( (float)rand() * ((float)NUMVECTORS/(float)RAND_MAX) );
 	cout << vectorList2[IRand] << endl;
 
+	return 0;
 }

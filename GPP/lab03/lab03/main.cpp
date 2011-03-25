@@ -8,18 +8,18 @@ using namespace std;
 
 void disp(Vector3 &vec)
 {
-	cout << vec.m_v128.m128_f32[0] << ", " << vec.m_v128.m128_f32[1] << ", " << vec.m_v128.m128_f32[2] << ", " << vec.m_v128.m128_f32[3] << endl;
+	//cout << vec.m_v128.m128_f32[0] << ", " << vec.m_v128.m128_f32[1] << ", " << vec.m_v128.m128_f32[2] << ", " << vec.m_v128.m128_f32[3] << endl;
 }
 
-int main()
+int notmain()
 {
-	Vector3 v(5, 5, 5);
 
-	cout << "Length: " << length(v) << endl;
-	
-	v = normalize(v);
+	Vector3 v1(1, 2, -3);
+	Vector3 v2(0, 1, 0);
 
-	disp(v);
+	Vector3 v3 = -v1;
+
+	disp(v3);
 	system("PAUSE");
 	return 0;
 }
