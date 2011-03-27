@@ -12,14 +12,14 @@ using namespace std;
 
 #include "Sphere.h"
 
-#define NUM_SPHERES 2
+#define NUM_SPHERES 2000
 #define UPDATE_INTERVAL 10
 
 Sphere spheres[NUM_SPHERES];
 
 GLuint disp;
 
-float roomSize = 10.0f;
+float roomSize = 20.0f;
 int oldX = -1, oldY = -1;
 
 LARGE_INTEGER frequency, timeStart, timeEnd;
@@ -28,6 +28,7 @@ double freq, totalTime;
 bool mouseLeftDown = false;
 bool mouseRightDown = false;
 
+float zoom = 30;
 Vector3 camRotate;
 
 int count = 0;
@@ -63,13 +64,13 @@ void init(void)
 	
 	QueryPerformanceFrequency( &frequency );
 	freq = (double)frequency.QuadPart / 1000.0, totalTime = 0.0;
-	/*
+	
 	for(int i = 0; i < NUM_SPHERES; i++)
 	{
 		spheres[i].m_position.m_fX = randf() * roomSize * 2.0f - roomSize;
 		spheres[i].m_position.m_fY = randf() * NUM_SPHERES * 0.05f - roomSize;
 		spheres[i].m_position.m_fZ = randf() * roomSize * 2.0f - roomSize;
-
+		
 		spheres[i].m_velocity.m_fX = randf() * roomSize * 2.0f - roomSize;
 		spheres[i].m_velocity.m_fY = randf() * roomSize * 2.0f - roomSize;
 		spheres[i].m_velocity.m_fZ = randf() * roomSize * 2.0f - roomSize;
@@ -79,12 +80,13 @@ void init(void)
 
 		//spheres[i].m_radius = 2;
 	}
-	*/
+	/*
+	spheres[0].m_mass = 2.0;
 	spheres[0].m_position = Vector3(-5.0f, 0.0f, 0.0f);
-	spheres[0].m_velocity = Vector3(2.5f, 0, 0);
+	spheres[0].m_velocity = Vector3(0.0f, 0.0f, 0);
 	spheres[0].m_red = 0.3;
 	spheres[1].m_position = Vector3(5.0f, 0.0f, 0.0f);
-	spheres[1].m_velocity = Vector3(-2.5f, 0, 0);
+	spheres[1].m_velocity = Vector3(-1.0f, 0, 0);*/
 }
 
 void display(void)
@@ -92,7 +94,7 @@ void display(void)
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
-	glTranslated(0, 0, -26);
+	glTranslated(0, 0, -zoom);
 	glRotatef(camRotate.m_fX, 1, 0, 0);
 	glRotatef(camRotate.m_fY, 0, 1, 0);
 
@@ -136,11 +138,21 @@ void updateLoop(int value)
 		QueryPerformanceCounter(&timeStart);
 	}
 	count++;
-	for(int i = 0; i < NUM_SPHERES - 1; i++)
+	/*for(int i = 0; i < NUM_SPHERES - 1; i++)
 	{
 		for(int j = i + 1; j < NUM_SPHERES; j++)
 		{
 			spheres[i].collideWith(0.04f, spheres[j]);
+		}
+	}*/
+
+	for(int i = 0; i < NUM_SPHERES; i++)
+	{
+		for(int j = 0; j < NUM_SPHERES; j++)
+		{
+			if(i == j)
+				continue;
+			spheres[i].collideWith2(0.04f, spheres[j]);
 		}
 	}
 	for(int i = 0; i < NUM_SPHERES; i++)
@@ -187,6 +199,13 @@ void mouseMoveFunc(int x, int y)
 			camRotate.m_fY += (float)dx * 0.5f;
 		}
 	}
+	else if(mouseRightDown)
+	{
+		if(oldX >= 0)
+		{
+			zoom += y - oldY;
+		}
+	}
 	oldX = x;
 	oldY = y;
 }
@@ -196,7 +215,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (800, 600); 
-	glutInitWindowPosition (500, 100);
+	glutInitWindowPosition (100, 100);
 	glutCreateWindow (argv[0]);
 	init ();
 	glutDisplayFunc(display); 

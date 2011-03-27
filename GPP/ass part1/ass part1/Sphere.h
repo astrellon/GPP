@@ -14,6 +14,7 @@ typedef struct _Sphere
 	Vector3 m_position;
 	Vector3 m_velocity;
 	Vector3 m_forces;
+	Vector3 m_acc;
 	//Vector3 m_temp_velo;
 
 	_Sphere();
@@ -26,9 +27,11 @@ typedef struct _Sphere
 	float m_mass;
 
 	float m_red;
-	float pad2;
+	//float pad2;
 
 	void collideWith(const float &fDt, _Sphere &sSphere);
+
+	void collideWith2(const float &fDt, const _Sphere &sSphere);
 
 	void update(const float &fDt);
 
