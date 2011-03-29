@@ -26,9 +26,13 @@ typedef struct _Vector3
 
 	explicit _Vector3(const float fFloat);
 
-	//float getX();
-	//float getY();
-	//float getZ();
+	float getX() const;
+	float getY() const;
+	float getZ() const;
+
+	void setX(const float &fX);
+	void setY(const float &fY);
+	void setZ(const float &fZ);
 
 #if _SSE
 	explicit _Vector3(const __m128 &v128);

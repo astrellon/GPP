@@ -29,7 +29,9 @@ bool mouseLeftDown = false;
 bool mouseRightDown = false;
 
 float zoom = 30;
-Vector3 camRotate;
+//Vector3 camRotate;
+float camRotateX;
+float camRotateY;
 
 int count = 0;
 
@@ -67,18 +69,12 @@ void init(void)
 	
 	for(int i = 0; i < NUM_SPHERES; i++)
 	{
-		spheres[i].m_position.m_fX = randf() * roomSize * 2.0f - roomSize;
-		spheres[i].m_position.m_fY = randf() * NUM_SPHERES * 0.05f - roomSize;
-		spheres[i].m_position.m_fZ = randf() * roomSize * 2.0f - roomSize;
-		
-		spheres[i].m_velocity.m_fX = randf() * roomSize * 2.0f - roomSize;
-		spheres[i].m_velocity.m_fY = randf() * roomSize * 2.0f - roomSize;
-		spheres[i].m_velocity.m_fZ = randf() * roomSize * 2.0f - roomSize;
-		spheres[i].m_radius = randf() * 0.5f + 0.5f;
-		spheres[i].m_mass = spheres[i].m_radius * 5;
-		spheres[i].m_red = spheres[i].m_radius - 0.5f;
+		spheres[i].m_position = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * NUM_SPHERES * 0.02f - roomSize, randf() * roomSize * 2.0f - roomSize);
+		spheres[i].m_velocity = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize);
 
-		//spheres[i].m_radius = 2;
+		spheres[i].m_radius = randf() * 1.0f + 0.5f;
+		spheres[i].m_mass = spheres[i].m_radius * 5;
+		spheres[i].m_red = spheres[i].m_radius / 3.0f;
 	}
 	/*
 	spheres[0].m_mass = 2.0;
@@ -95,15 +91,20 @@ void display(void)
 	glLoadIdentity();
 	
 	glTranslated(0, 0, -zoom);
-	glRotatef(camRotate.m_fX, 1, 0, 0);
-	glRotatef(camRotate.m_fY, 0, 1, 0);
+	glRotatef(camRotateX, 1, 0, 0);
+	glRotatef(camRotateY, 0, 1, 0);
 
 	//glPushMatrix();
 	for(int i = 0; i < NUM_SPHERES; i++)
 	{
 		glPushMatrix();
 		glColor3f(spheres[i].m_red, 0.2f, 0.4f);
+#ifdef _SSE
+		float *pos = (float*)&spheres[i].m_position.m_v128;
+		glTranslatef(pos[0], pos[1], pos[2]);
+#else
 		glTranslatef(spheres[i].m_position.m_fX, spheres[i].m_position.m_fY, spheres[i].m_position.m_fZ);
+#endif
 		glScalef(spheres[i].m_radius * 2.0f, spheres[i].m_radius * 2.0f, spheres[i].m_radius * 2.0f);
 		glCallList(disp);
 		glPopMatrix();
@@ -195,8 +196,8 @@ void mouseMoveFunc(int x, int y)
 			int dx = x - oldX;
 			int dy = y - oldY;
 
-			camRotate.m_fX += (float)dy * 0.5f;
-			camRotate.m_fY += (float)dx * 0.5f;
+			camRotateX += (float)dy * 0.5f;
+			camRotateY += (float)dx * 0.5f;
 		}
 	}
 	else if(mouseRightDown)

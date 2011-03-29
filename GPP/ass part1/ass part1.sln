@@ -5,11 +5,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ass part1", "ass part1\ass 
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (SSE)|Win32 = Debug (SSE)|Win32
 		Debug|Win32 = Debug|Win32
 		Release (SSE)|Win32 = Release (SSE)|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A02F7D21-8EFD-454D-9846-AB27543107A5}.Debug (SSE)|Win32.ActiveCfg = Debug (SSE)|Win32
+		{A02F7D21-8EFD-454D-9846-AB27543107A5}.Debug (SSE)|Win32.Build.0 = Debug (SSE)|Win32
 		{A02F7D21-8EFD-454D-9846-AB27543107A5}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A02F7D21-8EFD-454D-9846-AB27543107A5}.Debug|Win32.Build.0 = Debug|Win32
 		{A02F7D21-8EFD-454D-9846-AB27543107A5}.Release (SSE)|Win32.ActiveCfg = Release (SSE)|Win32

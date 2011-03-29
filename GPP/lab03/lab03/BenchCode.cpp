@@ -15,7 +15,7 @@ using namespace std;
 
 FORCEINLINE ostream &operator<<(ostream &os, const Vector3 &v)
 {
-	//os << "Vector3(" << v.m_fX << ", " << v.m_fY << ", " << v.m_fZ << ")";
+	os << "Vector3(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
 	return os;
 }
 
@@ -65,6 +65,8 @@ int main()
 
 	/* get average time for each pass */
 	cout << "Average: " << totalTime/(double)NUMPASSES << endl;
+
+	getchar();
 
 	/* print a random element of the vector list to prevent optimizing out */
 	int IRand = (int)( (float)rand() * ((float)NUMVECTORS/(float)RAND_MAX) );

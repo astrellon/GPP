@@ -64,22 +64,22 @@ FORCELINE static const _Vector3 &operator /=(_Vector3 &lhs, const float &rhs)
 
 	return lhs;
 }
-/*
-FORCELINE float Vector3::getX()
+
+FORCELINE float Vector3::getX() const
 {
 	return m_fX;
 }
 
-FORCELINE float Vector3::getY()
+FORCELINE float Vector3::getY() const
 {
 	return m_fY;
 }
 
-FORCELINE float Vector3::getZ()
+FORCELINE float Vector3::getZ() const
 {
 	return m_fZ;
 }
-*/
+
 FORCELINE float lengthSquared(const Vector3 &vc3Vector)
 {
 	return vc3Vector.m_fX * vc3Vector.m_fX + vc3Vector.m_fY * vc3Vector.m_fY + vc3Vector.m_fZ * vc3Vector.m_fZ;
