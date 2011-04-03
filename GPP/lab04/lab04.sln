@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lab04", "lab03\lab03.vcxproj", "{9990491C-C095-4905-BC77-212F7ECC4F68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (SSE)|Win32 = Debug (SSE)|Win32
+		Debug|Win32 = Debug|Win32
+		Release (SSE)|Win32 = Release (SSE)|Win32
+		Release (SSE4)|Win32 = Release (SSE4)|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Debug (SSE)|Win32.ActiveCfg = Debug (SSE)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Debug (SSE)|Win32.Build.0 = Debug (SSE)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Debug|Win32.Build.0 = Debug|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release (SSE)|Win32.ActiveCfg = Release (SSE)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release (SSE)|Win32.Build.0 = Release (SSE)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release (SSE4)|Win32.ActiveCfg = Release (SSE4)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release (SSE4)|Win32.Build.0 = Release (SSE4)|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release|Win32.ActiveCfg = Release|Win32
+		{9990491C-C095-4905-BC77-212F7ECC4F68}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
