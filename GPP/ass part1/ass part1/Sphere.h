@@ -25,9 +25,9 @@ typedef struct _Sphere
 
 	float m_red;
 
-	void collideWith2(const float &fDt, const _Sphere &sSphere);
+	void collideWith2(const double &fDt, const _Sphere &sSphere);
 
-	void update(const float &fDt);
+	void update(const double &fDt);
 
 	//void refresh();
 } Sphere;

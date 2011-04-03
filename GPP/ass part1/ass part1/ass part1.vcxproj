@@ -62,16 +62,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Alan\Uni\GPP\lab02\lab02;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\release\link-static\threading-multi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SSE)|Win32'">
-    <IncludePath>../../lab03/lab03;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\date_time\build\msvc-10.0\debug\link-static\threading-multi;C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\debug\link-static\threading-multi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>../../lab03/lab03;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\release\link-static\threading-multi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SSE)|Win32'">
-    <IncludePath>../../lab03/lab03;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\date_time\build\msvc-10.0\release\link-static\threading-multi;C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\release\link-static\threading-multi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -123,14 +127,14 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>false</ExceptionHandling>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <CallingConvention>Cdecl</CallingConvention>
-      <PreprocessorDefinitions>_SSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>_SSE=1;_SSE2=1;_SSE4=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

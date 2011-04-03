@@ -4,6 +4,8 @@
 #include <gl\gl.h>
 #include <gl\glu.h>
 
+#include <boost\thread\thread.hpp>
+
 #include <time.h>
 
 #include <iostream>
@@ -13,7 +15,7 @@ using namespace std;
 #include "Sphere.h"
 
 #define NUM_SPHERES 2000
-#define UPDATE_INTERVAL 10
+#define UPDATE_INTERVAL 40
 
 Sphere spheres[NUM_SPHERES];
 
@@ -33,7 +35,18 @@ float zoom = 30;
 float camRotateX;
 float camRotateY;
 
-int count = 0;
+int performanceCount = 0;
+
+int numPhysicsThreads = 4;
+boost::thread *physicsThreads;
+
+bool programRunning = true;
+
+LARGE_INTEGER updateTimes[4];
+
+void boost::throw_exception(const std::exception &e)
+{
+}
 
 float randf()
 {
@@ -134,11 +147,11 @@ void reshape (int w, int h)
 
 void updateLoop(int value)
 {
-	if(count == 0)
+	if(performanceCount == 0)
 	{
 		QueryPerformanceCounter(&timeStart);
 	}
-	count++;
+	performanceCount++;
 	/*for(int i = 0; i < NUM_SPHERES - 1; i++)
 	{
 		for(int j = i + 1; j < NUM_SPHERES; j++)
@@ -161,16 +174,16 @@ void updateLoop(int value)
 		spheres[i].update(0.04f);
 	}
 
-	if(count == 10)
+	if(performanceCount == 10)
 	{
 		QueryPerformanceCounter(&timeEnd);
 		double dTime = ((double)timeEnd.QuadPart - (double)timeStart.QuadPart)/freq;
 		//cout << " Time (ms): " << dTime << endl;
-		count = 0;
+		performanceCount = 0;
 	}
 
-	glutPostRedisplay();
-	glutTimerFunc(UPDATE_INTERVAL, updateLoop, 0);
+	//glutPostRedisplay();
+	//glutTimerFunc(UPDATE_INTERVAL, updateLoop, 0);
 }
 
 void mouseFunc(int button, int state, int x, int y)
@@ -211,6 +224,41 @@ void mouseMoveFunc(int x, int y)
 	oldY = y;
 }
 
+void redrawLoop(int value)
+{
+	glutPostRedisplay();
+	glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
+}
+
+void physicsThread(int threadNum, int lower, int upper)
+{
+	cout << lower << ", " << upper << endl;
+
+	while(programRunning)
+	{
+		LARGE_INTEGER time;
+		QueryPerformanceCounter(&time);
+
+		float dt = ((double)time.QuadPart - (double)updateTimes[threadNum].QuadPart) / freq;
+		dt *= 0.001;
+		for(int i = lower; i < upper; i++)
+		{
+			for(int j = 0; j < NUM_SPHERES; j++)
+			{
+				if(i == j)
+					continue;
+				spheres[i].collideWith2(dt, spheres[j]);
+			}
+		}
+		for(int i = lower; i < upper; i++)
+		{
+			spheres[i].update(dt);
+		}
+
+		updateTimes[threadNum] = time;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -223,8 +271,27 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouseFunc);
 	glutMotionFunc(mouseMoveFunc);
-	glutTimerFunc(UPDATE_INTERVAL, updateLoop, 0);
+	glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
+
+	int num = NUM_SPHERES / numPhysicsThreads;
+
+	physicsThreads = new boost::thread[numPhysicsThreads];
+
+	LARGE_INTEGER firstTime;
+	QueryPerformanceCounter(&firstTime);
+
+	for(int i = 0; i < numPhysicsThreads; i++)
+	{
+		updateTimes[i] = firstTime;
+		physicsThreads[i] = boost::thread(physicsThread, i, i * num, (i + 1) * num);
+	}
 	
 	glutMainLoop();
+
+	programRunning = false;
+	for(int i = 0; i < numPhysicsThreads; i++)
+	{
+		physicsThreads[i].join();
+	}
 	return 0;
 }
