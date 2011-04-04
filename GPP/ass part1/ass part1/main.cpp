@@ -14,7 +14,7 @@ using namespace std;
 
 #include "Sphere.h"
 
-#define NUM_SPHERES 2000
+#define NUM_SPHERES 4000
 #define UPDATE_INTERVAL 40
 
 Sphere spheres[NUM_SPHERES];
@@ -234,6 +234,7 @@ void physicsThread(int threadNum, int lower, int upper)
 {
 	cout << lower << ", " << upper << endl;
 
+
 	while(programRunning)
 	{
 		LARGE_INTEGER time;
@@ -284,6 +285,7 @@ int main(int argc, char** argv)
 	{
 		updateTimes[i] = firstTime;
 		physicsThreads[i] = boost::thread(physicsThread, i, i * num, (i + 1) * num);
+		
 	}
 	
 	glutMainLoop();
@@ -292,6 +294,7 @@ int main(int argc, char** argv)
 	for(int i = 0; i < numPhysicsThreads; i++)
 	{
 		physicsThreads[i].join();
+		
 	}
 	return 0;
 }

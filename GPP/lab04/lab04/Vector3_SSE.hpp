@@ -23,32 +23,17 @@ FORCELINE Vector3::_Vector3(const float fFloat) : m_v128(_mm_set1_ps(fFloat))
 
 FORCELINE float Vector3::getX() const
 {
-/*#if _SSE4
-	int i = _mm_extract_ps(m_v128, 0);
-	return *(float*)&i;
-#else*/
 	return m_v128.m128_f32[0];
-//#endif
 }
 
 FORCELINE float Vector3::getY() const
 {
-/*#if _SSE4
-	int i = _mm_extract_ps(m_v128, 1);
-	return *(float*)&i;
-#else*/
 	return m_v128.m128_f32[1];
-//#endif
 }
 
 FORCELINE float Vector3::getZ() const
 {
-/*#if _SSE4
-	int i = _mm_extract_ps(m_v128, 2);
-	return *(float*)&i;
-#else*/
 	return m_v128.m128_f32[2];
-//#endif
 }
 
 FORCELINE void Vector3::setX(const float &fX)

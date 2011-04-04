@@ -1,5 +1,3 @@
-#pragma once
-
 #ifdef FORCELINE
 #undef FORCELINE
 #endif
