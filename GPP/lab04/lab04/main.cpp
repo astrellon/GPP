@@ -6,8 +6,8 @@
 #include <Windows.h>
 #include <iostream>
 
-#include "benchSSE.cpp"
 #include "benchSSE4.cpp"
+#include "benchSSE.cpp"
 #include "benchScalar.cpp"
 
 #if defined (_MSC_VER) || defined (__INTEL_COMPILER)
@@ -59,7 +59,7 @@ int main()
 	{
 		cout << "SSSE3 supported" << endl;
 	}
-	if(iCPUVals[2] & (1 << 19) && USE_SSE4)
+	if(iCPUVals[2] & (1 << 19))
 	{
 #if USE_SSE4
 		sse4Support = true;
@@ -91,6 +91,7 @@ int main()
 		perftest_Scalar();
 	}
 
+	cout << endl;
 	system("PAUSE");
 	return 0;
 }
