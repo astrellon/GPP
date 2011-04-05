@@ -16,7 +16,23 @@ using namespace std;
 #define _SSE4 0
 #define _SSE 1
 
+#include <boost\thread\thread.hpp>
+
 #include "Vector3.hpp"
+
+FORCEINLINE void executeVectorsSSE(Vector3 *vectorList, Vector3 *vectorList2, int start, int finish)
+{
+	for(int i = start; i < finish; i++)
+	{
+		/* perform series of operations */
+		Vector3 temp = vectorList[i] + vectorList[i+1];
+		vectorList[i] *= 3.25f;
+		vectorList2[i] = vectorList[i] * length( vectorList[i] );
+		vectorList2[i+1] = normalize( vectorList[i] );
+		vectorList2[i] *= dot3( vectorList2[i+1], temp );
+		vectorList2[i+1] = cross3( vectorList2[i], vectorList[i] );
+	}
+}
 
 int perftest_SSE()
 {
@@ -37,14 +53,35 @@ int perftest_SSE()
 	QueryPerformanceFrequency( &frequency );
 	double freq = (double)frequency.QuadPart / 1000.0, totalTime = 0.0;
 
+	int numThreads = boost::thread::hardware_concurrency();
+	boost::thread_group threads;
+
+#if _USE_MT
+	cout << "Number of threads: " << numThreads << endl;
+#endif
+
+	float num = (float)NUMVECTORS / numThreads;
+
 	/* perform desired number of passes */
 	for(int j=0; j<NUMPASSES; j++)
 	{
 		cout << "Running Pass SSE " << j+1 << "...";
+
 		QueryPerformanceCounter(&timeStart);
+#if _USE_MT
+
+		for(int t = 0; t < numThreads; t++)
+		{
+			int finish = (int)((float)(t + 1) * num);
+			if(t == numThreads - 1)
+				finish--;
+			threads.create_thread(boost::bind(executeVectorsSSE, vectorList, vectorList2, (int)(t * num), finish));
+		}
+		threads.join_all();
+#else
 		for(int i=0; i<NUMVECTORS-1; i++)
 		{
-			/* perform series of operations */
+			
 			Vector3 temp = vectorList[i] + vectorList[i+1];
 			vectorList[i] *= 3.25f;
 			vectorList2[i] = vectorList[i] * length( vectorList[i] );
@@ -52,6 +89,7 @@ int perftest_SSE()
 			vectorList2[i] *= dot3( vectorList2[i+1], temp );
 			vectorList2[i+1] = cross3( vectorList2[i], vectorList[i] );
 		}
+#endif
 	
 		/* get time taken to perform pass */
 			QueryPerformanceCounter(&timeEnd);

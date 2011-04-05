@@ -1,27 +1,22 @@
-/* setup number of vectors and number of passes to perform */
-
 #define NUMVECTORS 9999999
 #define NUMPASSES 10
 
 #include <time.h>
 
-#undef _SSE4
-#undef _SSE2
-#undef _SSE
-
 //uses windows performance counter
 #define NOMINMAX
 #include <windows.h>
-#include "Vector3.hpp"
 #include <iostream>
-
 using namespace std;
 
-FORCEINLINE ostream &operator<<(ostream &os, const Vector3 &v)
-{
-	os << "Vector3(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
-	return os;
-}
+#undef _SSE4
+#undef _SSE2
+#undef _SSE
+#define _SSE2 0
+#define _SSE4 0
+#define _SSE 0
+
+#include "Vector3.hpp"
 
 int perftest_Scalar()
 {
@@ -36,7 +31,7 @@ int perftest_Scalar()
 	{
 		vectorList[i] = Vector3((float)rand() * div, (float)rand() * div, (float)rand() * div);
 	}
-	cout << "Done" << endl;
+	cout << "Done " << _SSE << ", " << _SSE4 << endl;
 
 	/* setup the performance counter we will use to check the time of each operation */
 	LARGE_INTEGER frequency, timeStart, timeEnd;
@@ -46,7 +41,7 @@ int perftest_Scalar()
 	/* perform desired number of passes */
 	for(int j=0; j<NUMPASSES; j++)
 	{
-		cout << "Running Pass " << j+1 << "...";
+		cout << "Running Pass Scalar " << j+1 << "...";
 		QueryPerformanceCounter(&timeStart);
 		for(int i=0; i<NUMVECTORS-1; i++)
 		{
@@ -70,11 +65,9 @@ int perftest_Scalar()
 	/* get average time for each pass */
 	cout << "Average: " << totalTime/(double)NUMPASSES << endl;
 
-	getchar();
-
 	/* print a random element of the vector list to prevent optimizing out */
 	int IRand = (int)( (float)rand() * ((float)NUMVECTORS/(float)RAND_MAX) );
-	cout << vectorList2[IRand] << endl;
-
+	//cout << vectorList2[IRand] << endl;
+	cout << "Vector3(" << vectorList2[IRand].getX() << ", " << vectorList2[IRand].getY() << ", " << vectorList2[IRand].getZ() << ")";
 	return 0;
 }
