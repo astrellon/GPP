@@ -1,29 +1,14 @@
 /* setup number of vectors and number of passes to perform */
 
-#define NUMVECTORS 9999999
-#define NUMPASSES 10
-
-#include <time.h>
+#include "benchAll.h"
 
 #define _SSE4 1
 #define _SSE2 1
 #define _SSE 1
 
-//uses windows performance counter
-#define NOMINMAX
-#include <windows.h>
 #include "Vector3.hpp"
-#include <iostream>
 
-using namespace std;
-
-FORCEINLINE ostream &operator<<(ostream &os, const Vector3 &v)
-{
-	os << "Vector3(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
-	return os;
-}
-
-int perftest_SSE4()
+static int perftest_SSE4()
 {
 
 	/* create a list of random vectors */
@@ -46,7 +31,7 @@ int perftest_SSE4()
 	/* perform desired number of passes */
 	for(int j=0; j<NUMPASSES; j++)
 	{
-		cout << "Running Pass " << j+1 << "...";
+		cout << "Running Pass SSE4 " << j+1 << "...";
 		QueryPerformanceCounter(&timeStart);
 		for(int i=0; i<NUMVECTORS-1; i++)
 		{
@@ -70,11 +55,10 @@ int perftest_SSE4()
 	/* get average time for each pass */
 	cout << "Average: " << totalTime/(double)NUMPASSES << endl;
 
-	getchar();
-
 	/* print a random element of the vector list to prevent optimizing out */
 	int IRand = (int)( (float)rand() * ((float)NUMVECTORS/(float)RAND_MAX) );
-	cout << vectorList2[IRand] << endl;
+	//cout << vectorList2[IRand] << endl;
+	cout << "Vector3(" << vectorList2[IRand].getX() << ", " << vectorList2[IRand].getY() << ", " << vectorList2[IRand].getZ() << ")";
 
 	return 0;
 }
