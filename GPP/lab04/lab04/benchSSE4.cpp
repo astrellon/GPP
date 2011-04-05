@@ -1,3 +1,14 @@
+#define NUMVECTORS 9999999
+#define NUMPASSES 10
+
+#include <time.h>
+
+//uses windows performance counter
+#define NOMINMAX
+#include <windows.h>
+#include <iostream>
+using namespace std;
+
 /* setup number of vectors and number of passes to perform */
 
 #include "benchAll.h"
