@@ -3,18 +3,16 @@
 #include "glut.h"
 #include <gl\gl.h>
 #include <gl\glu.h>
-
+#include "IL\il.h"
 #include <stdlib.h>
-
 #include <boost\thread\thread.hpp>
-
 #include <time.h>
-
 #include <iostream>
 
 using namespace std;
 
 #include "Sphere.h"
+#include "TextField.h"
 
 #define UPDATE_INTERVAL 20
 
@@ -25,6 +23,7 @@ GLuint disp;
 
 float roomSize = 20.0f;
 int oldX = -1, oldY = -1;
+int renderFrame = 0;
 
 LARGE_INTEGER frequency, timeStart, timeEnd;
 double freq, totalTime;
@@ -33,22 +32,25 @@ bool mouseLeftDown = false;
 bool mouseRightDown = false;
 
 float zoom = 30;
-float camRotateX;
-float camRotateY;
+float camRotateX, camRotateY;
 
 int performanceCount = 0;
-
 int numPhysicsThreads = 0;
-
 bool programRunning = true;
-
 LARGE_INTEGER *updateTimes;
 
 boost::mutex runningLock;
 
 int rendering = 0;
 
-#if _RELEASE
+TextField txtInstructions;
+TextField txtSeperator;
+TextField txtNumSpheres;
+TextField txtRenderFrames;
+
+int screenWidth = 800, screenHeight = 600;
+
+#ifndef boost::throw_exception
 void boost::throw_exception(const std::exception &e)
 {
 }
@@ -94,8 +96,6 @@ void addSpheres(int num)
 		newArray = new Sphere[newSize];
 	}
 
-	//Sphere *newArray = (Sphere *)malloc(sizeof(Sphere) * newSize);
-
 	int len = newSize > numSpheres ? numSpheres : newSize;
 
 	for(int i = 0; i < len; i++)
@@ -119,7 +119,6 @@ void addSpheres(int num)
 	numSpheres = newSize;
 
 	delete []spheres;
-	//free(spheres);
 	spheres = newArray;
 
 	pauseSimulation = 0;
@@ -139,7 +138,7 @@ void init(void)
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
 	glEnable(GL_COLOR_MATERIAL);
 
@@ -153,32 +152,63 @@ void init(void)
 	freq = (double)frequency.QuadPart / 1000.0, totalTime = 0.0;
 
 	addSpheres(500);
-	/*
-	for(int i = 0; i < NUM_SPHERES; i++)
+
+	ILubyte fontId = ilGenImage();
+	ilBindImage(fontId);
+
+	if(!ilLoad(IL_PNG, "default4.png"))
 	{
-		spheres[i].m_position = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * NUM_SPHERES * 0.02f - roomSize, randf() * roomSize * 2.0f - roomSize);
-		spheres[i].m_velocity = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize);
+		cout << "Unable to load font image" << endl;
+	}
+	else
+	{
+		txtNumSpheres.setFontId(fontId);
+		txtRenderFrames.setFontId(fontId);
 
-		
+		txtInstructions.setFontId(fontId);
+		txtInstructions.setColour(0xFFFFAA);
+		txtInstructions.setText("Press +/- to add or remove spheres.");
 
-		//spheres[i].m_radius = randf() * 1.0f + 0.5f;
-		//spheres[i].m_mass = spheres[i].m_radius * 5;
-		//spheres[i].m_red = spheres[i].m_radius / 3.0f;
-		//spheres[i].m_colour = (GLuint)(randf() * (0xFFFFFFFF));
-	}*/
-	/*
-	spheres[0].m_mass = 2.0;
-	spheres[0].m_position = Vector3(-5.0f, 0.0f, 0.0f);
-	spheres[0].m_velocity = Vector3(0.0f, 0.0f, 0);
-	spheres[0].m_red = 0.3;
-	spheres[1].m_position = Vector3(5.0f, 0.0f, 0.0f);
-	spheres[1].m_velocity = Vector3(-1.0f, 0, 0);*/
+		//txtSeperator.setText("-------
+	}
+}
+
+void perspectiveView()
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity();
+
+	GLfloat zNear = 0.1f;
+	GLfloat zFar = 255.0f;
+	GLfloat aspect = float(screenWidth)/float(screenHeight);
+	GLfloat fH = tan( float(65.0f / 360.0f * 3.14159f) ) * zNear;
+	GLfloat fW = fH * aspect;
+	glFrustum( -fW, fW, -fH, fH, zNear, zFar );
+
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void orthographicView()
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glOrtho(0, screenWidth, screenHeight, 0, 0, 1);
+	
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void display(void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+
+	glPushMatrix();
+
+	glEnable(GL_LIGHTING);
 	
 	glTranslated(0, 0, -zoom);
 	glRotatef(camRotateX, 1, 0, 0);
@@ -189,7 +219,15 @@ void display(void)
 		boost::this_thread::yield();
 	}
 
+	perspectiveView();
+
+	renderFrame++;
+
 	threadStarted();
+
+	glEnable(GL_DEPTH_TEST);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
 	
 	//glPushMatrix();
 	for(int i = 0; i < numSpheres; i++)
@@ -209,67 +247,37 @@ void display(void)
 	}
 	
 	threadStopped();
-	//glPopMatrix();
+	glPopMatrix();
+
+	glDisable(GL_LIGHTING);
+
+	orthographicView();
+
+	char buff[32];
+	sprintf(buff, "Num Spheres:   %d", numSpheres);
+	txtNumSpheres.setText(buff);
+
+	sprintf(buff, "Render frames: %d", renderFrame);
+	txtRenderFrames.setText(buff);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	txtInstructions.render(10, 10);
+	txtNumSpheres.render(10, 24);
+	txtRenderFrames.render(10, 38);
+
+	glDisable(GL_BLEND);
 
 	glutSwapBuffers();
 }
 
 void reshape (int w, int h)
 {
+	screenWidth = w;
+	screenHeight = h;
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
-
-	GLfloat zNear = 0.1f;
-	GLfloat zFar = 255.0f;
-	GLfloat aspect = float(w)/float(h);
-	GLfloat fH = tan( float(65.0f / 360.0f * 3.14159f) ) * zNear;
-	GLfloat fW = fH * aspect;
-	glFrustum( -fW, fW, -fH, fH, zNear, zFar );
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-void updateLoop(int value)
-{
-	if(performanceCount == 0)
-	{
-		QueryPerformanceCounter(&timeStart);
-	}
-	performanceCount++;
-	/*for(int i = 0; i < NUM_SPHERES - 1; i++)
-	{
-		for(int j = i + 1; j < NUM_SPHERES; j++)
-		{
-			spheres[i].collideWith(0.04f, spheres[j]);
-		}
-	}*/
-/*
-	for(int i = 0; i < NUM_SPHERES; i++)
-	{
-		for(int j = 0; j < NUM_SPHERES; j++)
-		{
-			if(i == j)
-				continue;
-			spheres[i].collideWith2(0.04f, spheres[j]);
-		}
-	}
-	for(int i = 0; i < NUM_SPHERES; i++)
-	{
-		spheres[i].update(0.04f);
-	}
-
-	if(performanceCount == 10)
-	{
-		QueryPerformanceCounter(&timeEnd);
-		double dTime = ((double)timeEnd.QuadPart - (double)timeStart.QuadPart)/freq;
-		//cout << " Time (ms): " << dTime << endl;
-		performanceCount = 0;
-	}
-	*/
-	//glutPostRedisplay();
-	//glutTimerFunc(UPDATE_INTERVAL, updateLoop, 0);
 }
 
 void mouseFunc(int button, int state, int x, int y)
@@ -335,11 +343,6 @@ void keyFunc(unsigned char key, int x, int y)
 
 void physicsThread(int threadNum)
 {
-	//cout << lower << ", " << upper << endl;
-
-	int physicsFrame = 0;
-	//int renderingFrame = -1;
-
 	int threadRunning = 0;
 
 	while(programRunning)
@@ -360,6 +363,7 @@ void physicsThread(int threadNum)
 			boost::this_thread::yield();
 			continue;
 		}
+
 		float num = (float)numSpheres / (float)numPhysicsThreads;
 		int lower = (int)(threadNum * num);
 		int upper = (int)((threadNum + 1) * num);
@@ -377,25 +381,11 @@ void physicsThread(int threadNum)
 				spheres[i].collideWith2(dt, spheres[j]);
 			}
 		}
-		/*
-		while(rendering && renderingFrame < physicsFrame)
-		{
-			renderLock.lock();
-			renderLock.unlock();
-		}
-		*/
 
-		//if(!rendering)
-		//{
-			//renderLock.lock();
-			//renderingFrame = physicsFrame;
-			for(int i = lower; i < upper; i++)
-			{
-				spheres[i].update(dt);
-			}
-			//renderLock.unlock();
-		//}
-		physicsFrame ++;
+		for(int i = lower; i < upper; i++)
+		{
+			spheres[i].update(dt);
+		}
 
 		updateTimes[threadNum] = time;
 	}
@@ -403,9 +393,12 @@ void physicsThread(int threadNum)
 
 int main(int argc, char** argv)
 {
+	ilInit();
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (800, 600); 
+	
+	glutInitWindowSize (screenWidth, screenHeight); 
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow (argv[0]);
 	init ();
@@ -422,7 +415,6 @@ int main(int argc, char** argv)
 	numPhysicsThreads = boost::thread::hardware_concurrency();
 	//numPhysicsThreads = 1;
 	boost::thread_group threads;
-	//int num = NUM_SPHERES / numPhysicsThreads;
 
 	updateTimes = new LARGE_INTEGER[numPhysicsThreads];
 
@@ -430,9 +422,6 @@ int main(int argc, char** argv)
 	{
 		updateTimes[i] = firstTime;
 		threads.create_thread(boost::bind(physicsThread, i));
-		//threads.create_thread(boost::bind(physicsThread, i, i * num, (i + 1) * num));
-		//physicsThreads[i] = boost::thread(physicsThread, i, i * num, (i + 1) * num);
-		
 	}
 	
 	glutMainLoop();
@@ -440,10 +429,6 @@ int main(int argc, char** argv)
 	programRunning = false;
 
 	threads.join_all();
-	/*for(int i = 0; i < numPhysicsThreads; i++)
-	{
-		physicsThreads[i].join();
-		
-	}*/
+
 	return 0;
 }
