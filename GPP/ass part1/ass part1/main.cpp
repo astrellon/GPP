@@ -411,6 +411,7 @@ void physicsThread(int threadNum)
 
 		float dt = ((double)time.QuadPart - (double)updateTimes[threadNum].QuadPart) / freq;
 		dt *= 0.001;
+
 		for(int i = lower; i < upper; i++)
 		{
 			for(int j = 0; j < numSpheres; j++)

@@ -196,3 +196,22 @@ void Sphere::collideWith2(const double &fDt, const _Sphere &sSphere)
 		m_forces -= 120.0f * x * (toCentre / len);
 	}
 }
+
+void Sphere::collideWith3(const double &fDt, const _Sphere &sSphere)
+{
+	Vector3 toCentre = m_position - sSphere.m_position;
+	//toCentre = normalize(toCentre);
+
+	float relNv = dot3((sSphere.m_velocity - m_velocity), toCentre);
+
+	float dist = length(toCentre) - m_radius - sSphere.m_radius;
+
+	float remove = relNv + 0.4* (dist + 1) / fDt;
+	if(remove < 0 && dist < 0)
+	{
+		float imp = remove / (m_mass + sSphere.m_mass);
+
+		//m_velocity += imp * toCentre * m_mass;
+		m_forces -= imp * toCentre * m_mass / fDt * 0.05f;
+	}
+}

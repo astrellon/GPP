@@ -31,6 +31,7 @@ typedef struct _Sphere
 	GLuint m_colour;
 
 	void collideWith2(const double &fDt, const _Sphere &sSphere);
+	void collideWith3(const double &fDt, const _Sphere &sSphere);
 
 	void update(const double &fDt);
 
