@@ -35,23 +35,23 @@ void TextField::init()
 void TextField::render(int x, int y)
 {
 	glPushMatrix();
-	glTranslatef(x, y, 0);
+	glTranslatef((float)x, (float)y, 0);
 
 	glBindTexture(GL_TEXTURE_2D, getTextureId());
 
 	glBegin(GL_QUADS);
 
 		glColor3f(0.3f, 0.3f, 0.3f);
-		glTexCoord2f(0, 0);	glVertex2f(1, 1);
-		glTexCoord2f(1, 0);	glVertex2f(m_texture_width + 1, 1);
-		glTexCoord2f(1, 1);	glVertex2f(m_texture_width + 1, m_texture_height + 1);
-		glTexCoord2f(0, 1);	glVertex2f(1, m_texture_height + 1);
+		glTexCoord2f(0, 0);	glVertex2i(1, 1);
+		glTexCoord2f(1, 0);	glVertex2i(m_texture_width + 1, 1);
+		glTexCoord2f(1, 1);	glVertex2i(m_texture_width + 1, m_texture_height + 1);
+		glTexCoord2f(0, 1);	glVertex2i(1, m_texture_height + 1);
 
 		glColor3ub((m_colour >> 16) & 0xFF, (m_colour >> 8) & 0xFF, m_colour & 0xFF);
-		glTexCoord2f(0, 0);	glVertex2f(0, 0);
-		glTexCoord2f(1, 0);	glVertex2f(m_texture_width, 0);
-		glTexCoord2f(1, 1);	glVertex2f(m_texture_width, m_texture_height);
-		glTexCoord2f(0, 1);	glVertex2f(0, m_texture_height);
+		glTexCoord2f(0, 0);	glVertex2i(0, 0);
+		glTexCoord2f(1, 0);	glVertex2i(m_texture_width, 0);
+		glTexCoord2f(1, 1);	glVertex2i(m_texture_width, m_texture_height);
+		glTexCoord2f(0, 1);	glVertex2i(0, m_texture_height);
 
 	glEnd();
 
@@ -70,7 +70,7 @@ inline void TextField::setFontId(ILubyte fontId)
 	m_char_width = (float)ilGetInteger(IL_IMAGE_WIDTH) / 16.0f;
 	m_char_height = (float)ilGetInteger(IL_IMAGE_HEIGHT) / 16.0f;
 
-	m_temp = new ILubyte[m_char_width * m_char_height * 4];
+	m_temp = new ILubyte[(int)ceil(m_char_width * m_char_height) * 4];
 }
 
 void TextField::blit(char letter, int x, int y)
@@ -80,7 +80,7 @@ void TextField::blit(char letter, int x, int y)
 	
 	ilBindImage(m_font_id);
 
-	ilCopyPixels((ILuint)(srcX * m_char_width), (ILuint)(srcY * m_char_height), 0, m_char_width, m_char_height, 1, IL_RGBA, IL_UNSIGNED_BYTE, m_temp);
+	ilCopyPixels((ILuint)(srcX * m_char_width), (ILuint)(srcY * m_char_height), 0, (ILuint)m_char_width, (ILuint)m_char_height, 1, IL_RGBA, IL_UNSIGNED_BYTE, m_temp);
 
 	ilBindImage(m_image_id);
 	ilSetPixels((ILint)(x * m_char_width), (ILint)(y * m_char_height), 0, (ILuint)m_char_width, (ILuint)m_char_height, 1, IL_RGBA, IL_UNSIGNED_BYTE, m_temp);
@@ -100,12 +100,12 @@ void TextField::updateTexture()
 	m_image_id = ilGenImage();
 	ilBindImage(m_image_id);
 
-	m_texture_width = m_char_width * m_text.length();
-	m_texture_height = m_char_height;
+	m_texture_width = (int)ceil(m_char_width) * m_text.length();
+	m_texture_height = (int)ceil(m_char_height);
 
 	ilTexImage(m_texture_width, m_texture_height, 1, bpp, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 
-	for(int i = 0; i < m_text.length(); i++)
+	for(unsigned int i = 0; i < m_text.length(); i++)
 	{
 		blit(m_text[i], i, 0);
 	}

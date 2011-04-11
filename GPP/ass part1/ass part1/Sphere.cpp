@@ -6,8 +6,11 @@ using namespace std;
 
 #define BOUNCE 0.6f
 
-Sphere::_Sphere() : m_position(0), m_mass(1.0f), m_radius(1.0f), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
+//Sphere::_Sphere() : m_position(0), m_mass(1.0f), m_radius(1.0f), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
+Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_colour(0)
 {
+	m_acc = Vector3(0);
+	m_forces = Vector3(0);
 }
 /*
 Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass) : m_radius(fRadius), m_mass(fMass), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
@@ -73,27 +76,7 @@ Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &f
 
 void Sphere::update(const double &fDt)
 {
-	float roomSize = 20.0f - m_radius;
-
-	/*if(m_velocity.getY() <= 0.0f && m_position.getY() <= -roomSize)
-	{
-		if(m_acc.getY() > -10)
-		{
-			m_velocity.setY(0.0f);
-		}
-		else
-		{
-			m_velocity.setY(m_velocity.getY() * -BOUNCE);
-		}
-		m_velocity.setX(m_velocity.getX() * 0.9f);
-		m_velocity.setZ(m_velocity.getZ() * 0.9f);
-		m_position.setY(-roomSize);
-	}
-	else
-	{
-		m_forces.setY(m_forces.getY() - 9.8f * m_mass);// * fDt;
-	}*/
-	
+	float roomSize = ROOM_SIZE - m_radius;
 
 	const Vector3 bottom(0, 1, 0);
 	const Vector3 left(-1, 0, 0);

@@ -5,12 +5,16 @@
 #include <gl\glu.h>
 #include "IL\il.h"
 #include <stdlib.h>
+
+#define BOOST_NO_EXCEPTIONS
+
 #include <boost\thread\thread.hpp>
 #include <time.h>
 #include <iostream>
 
 using namespace std;
 
+#include "Globals.h"
 #include "Sphere.h"
 #include "TextField.h"
 
@@ -21,9 +25,9 @@ Sphere *spheres = NULL;
 
 GLuint disp;
 
-float roomSize = 20.0f;
 int oldX = -1, oldY = -1;
 int renderFrame = 0;
+int physicsFrame = 0;
 
 LARGE_INTEGER frequency, timeStart, timeEnd;
 double freq, totalTime;
@@ -40,21 +44,17 @@ bool programRunning = true;
 LARGE_INTEGER *updateTimes;
 
 boost::mutex runningLock;
+boost::mutex physicsLock;
 
 int rendering = 0;
 
-TextField txtInstructions;
-TextField txtSeperator;
-TextField txtNumSpheres;
-TextField txtRenderFrames;
+TextField txtInstructions, txtNumSpheres, txtRenderFrames, txtPhysicsFrames;
 
 int screenWidth = 800, screenHeight = 600;
 
-#ifndef boost::throw_exception
 void boost::throw_exception(const std::exception &e)
 {
 }
-#endif
 
 float randf()
 {
@@ -63,6 +63,25 @@ float randf()
 
 int runningThreads = 0;
 int pauseSimulation = 0;
+int physicsRunning = 0;
+
+void physicsFrameStart()
+{
+	physicsLock.lock();
+	physicsRunning++;
+	physicsLock.unlock();
+}
+
+void physicsFrameFinish()
+{
+	physicsLock.lock();
+	physicsRunning--;
+	if(physicsRunning == 0)
+	{
+		physicsFrame++;
+	}
+	physicsLock.unlock();
+}
 
 void threadStopped()
 {
@@ -90,10 +109,12 @@ void addSpheres(int num)
 	if(newSize <= 0)
 	{
 		newSize = 0;
+		newArray = NULL;
 	}
 	else
 	{
-		newArray = new Sphere[newSize];
+		//newArray = new Sphere[newSize];
+		newArray = (Sphere *)_aligned_malloc(sizeof(Sphere) * newSize, 64);
 	}
 
 	int len = newSize > numSpheres ? numSpheres : newSize;
@@ -107,7 +128,8 @@ void addSpheres(int num)
 	{
 		for(int i = numSpheres; i < newSize; i++)
 		{
-			newArray[i].m_position = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * newSize * 0.02f - roomSize, randf() * roomSize * 2.0f - roomSize);
+			newArray[i] = Sphere();
+			newArray[i].m_position = Vector3(randf() * ROOM_SIZE * 2.0f - ROOM_SIZE, randf() * newSize * 0.02f - ROOM_SIZE, randf() * ROOM_SIZE * 2.0f - ROOM_SIZE);
 			newArray[i].m_velocity = Vector3(0);
 			//newArray[i].m_velocity = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize);
 			newArray[i].m_radius = randf() * 1.0f + 0.5f;
@@ -118,7 +140,12 @@ void addSpheres(int num)
 
 	numSpheres = newSize;
 
-	delete []spheres;
+	char buff[32];
+	sprintf(buff, "Num Spheres:   %d", numSpheres);
+	txtNumSpheres.setText(buff);
+
+	//delete []spheres;
+	_aligned_free(spheres);
 	spheres = newArray;
 
 	pauseSimulation = 0;
@@ -164,12 +191,11 @@ void init(void)
 	{
 		txtNumSpheres.setFontId(fontId);
 		txtRenderFrames.setFontId(fontId);
+		txtPhysicsFrames.setFontId(fontId);
 
 		txtInstructions.setFontId(fontId);
 		txtInstructions.setColour(0xFFFFAA);
 		txtInstructions.setText("Press +/- to add or remove spheres.");
-
-		//txtSeperator.setText("-------
 	}
 }
 
@@ -254,11 +280,12 @@ void display(void)
 	orthographicView();
 
 	char buff[32];
-	sprintf(buff, "Num Spheres:   %d", numSpheres);
-	txtNumSpheres.setText(buff);
 
 	sprintf(buff, "Render frames: %d", renderFrame);
 	txtRenderFrames.setText(buff);
+
+	sprintf(buff, "Physics frames: %d", physicsFrame);
+	txtPhysicsFrames.setText(buff);
 
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -267,6 +294,7 @@ void display(void)
 	txtInstructions.render(10, 10);
 	txtNumSpheres.render(10, 24);
 	txtRenderFrames.render(10, 38);
+	txtPhysicsFrames.render(10, 52);
 
 	glDisable(GL_BLEND);
 
@@ -344,6 +372,7 @@ void keyFunc(unsigned char key, int x, int y)
 void physicsThread(int threadNum)
 {
 	int threadRunning = 0;
+	int localFrame = 0;
 
 	while(programRunning)
 	{
@@ -363,6 +392,16 @@ void physicsThread(int threadNum)
 			boost::this_thread::yield();
 			continue;
 		}
+
+		if(physicsFrame < localFrame)
+		{
+			boost::this_thread::yield();
+			continue;
+		}
+
+		localFrame++;
+
+		physicsFrameStart();
 
 		float num = (float)numSpheres / (float)numPhysicsThreads;
 		int lower = (int)(threadNum * num);
@@ -388,6 +427,8 @@ void physicsThread(int threadNum)
 		}
 
 		updateTimes[threadNum] = time;
+
+		physicsFrameFinish();
 	}
 }
 
@@ -407,7 +448,8 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(keyFunc);
 	glutMouseFunc(mouseFunc);
 	glutMotionFunc(mouseMoveFunc);
-	glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
+	//glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
+	redrawLoop(0);
 
 	LARGE_INTEGER firstTime;
 	QueryPerformanceCounter(&firstTime);

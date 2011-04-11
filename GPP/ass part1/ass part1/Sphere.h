@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <gl/GL.h>
 
+#include "Globals.h"
+
 #ifndef isnan
 inline bool isnan(double x) {
     return x != x;
