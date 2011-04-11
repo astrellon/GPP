@@ -71,7 +71,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\release\link-static\threading-multi;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\date_time\build\msvc-10.0\release\link-static\threading-multi;C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1\bin.v2\libs\thread\build\msvc-10.0\release\link-static\threading-multi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SSE)|Win32'">
     <IncludePath>C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;C:\Users\Aloon\Downloads\Programming\boost_1_46_1\boost_1_46_1;../../lab04/lab04;$(IncludePath)</IncludePath>
@@ -92,7 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <PreprocessorDefinitions>_SSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SSE=1;_SSE2=1;_SSE4=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -112,6 +112,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CallingConvention>Cdecl</CallingConvention>
+      <PreprocessorDefinitions>_RELEASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -133,7 +134,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CallingConvention>Cdecl</CallingConvention>
-      <PreprocessorDefinitions>_SSE=1;_SSE2=1;_SSE4=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE=1;_SSE=1;_SSE2=1;_SSE4=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>

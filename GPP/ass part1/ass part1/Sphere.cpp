@@ -6,15 +6,15 @@ using namespace std;
 
 #define BOUNCE 0.6f
 
-Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_red(1.0f)
+Sphere::_Sphere() : m_position(0), m_mass(1.0f), m_radius(1.0f), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
 {
 }
-
-Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass) : m_radius(fRadius), m_mass(fMass), m_red(0.0f)
+/*
+Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass) : m_radius(fRadius), m_mass(fMass), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
 {
 	m_position = vc3Position;
 }
-
+*/
 /*void Sphere::update(const float &fDt)
 {
 	float roomSize = 20.0f - m_radius;
@@ -75,7 +75,7 @@ void Sphere::update(const double &fDt)
 {
 	float roomSize = 20.0f - m_radius;
 
-	if(m_velocity.getY() <= 0.0f && m_position.getY() <= -roomSize)
+	/*if(m_velocity.getY() <= 0.0f && m_position.getY() <= -roomSize)
 	{
 		if(m_acc.getY() > -10)
 		{
@@ -92,12 +92,59 @@ void Sphere::update(const double &fDt)
 	else
 	{
 		m_forces.setY(m_forces.getY() - 9.8f * m_mass);// * fDt;
-	}
+	}*/
+	
+
+	const Vector3 bottom(0, 1, 0);
+	const Vector3 left(-1, 0, 0);
+	const Vector3 right(1, 0, 0);
+	const Vector3 front(0, 0, -1);
+	const Vector3 back(0, 0, 1);
 
 	Vector3 halfVelo = m_velocity + fDt * 0.5f * m_acc;
 	m_position += halfVelo * fDt;
 	m_acc = m_forces / m_mass;
 	m_velocity = halfVelo + 0.5f * m_acc * fDt;
+
+	//m_forces.setY(m_forces.getY() - 9.8f * m_mass);// * fDt;
+	m_velocity -= Vector3(0.0f, 9.8f * fDt, 0.0f);
+
+	float distance = dot3(m_position, bottom) + roomSize;
+	if(distance < 0 && dot3(m_velocity, bottom) < 0)
+	{
+		m_velocity -= 1.5 * bottom * dot3(m_velocity, bottom);
+		m_position.setY(-roomSize);
+	}
+
+	distance = dot3(m_position, left) + roomSize;
+	if(distance < 0 && dot3(m_velocity, left) < 0)
+	{
+		m_velocity -= 1.5 * left * dot3(m_velocity, left);
+		m_position.setX(roomSize);
+	}
+
+	distance = dot3(m_position, right) + roomSize;
+	if(distance < 0 && dot3(m_velocity, right) < 0)
+	{
+		m_velocity -= 1.5 * right * dot3(m_velocity, right);
+		m_position.setX(-roomSize);
+	}
+
+	distance = dot3(m_position, front) + roomSize;
+	if(distance < 0 && dot3(m_velocity, front) < 0)
+	{
+		m_velocity -= 1.5 * front * dot3(m_velocity, front);
+		m_position.setZ(roomSize);
+	}
+
+	distance = dot3(m_position, back) + roomSize;
+	if(distance < 0 && dot3(m_velocity, back) < 0)
+	{
+		m_velocity -= 1.5 * back * dot3(m_velocity, back);
+		m_position.setZ(-roomSize);
+	}
+
+
 	/*
 #ifdef _SSE
 	float position[4];
@@ -147,6 +194,8 @@ void Sphere::collideWith2(const double &fDt, const _Sphere &sSphere)
 	Vector3 toCentre = (m_position + m_velocity * fDt) - (sSphere.m_position + sSphere.m_velocity * fDt);
 	//Vector3 toCentre = (sSphere.m_position) - (m_position);
 	float lenSqrd = lengthSquared(toCentre);
+	if(lenSqrd == 0)
+		return;
 	float len = sqrt(lenSqrd);
 	float x = len - m_radius - sSphere.m_radius;
 	if(x < 0)
@@ -161,6 +210,6 @@ void Sphere::collideWith2(const double &fDt, const _Sphere &sSphere)
 			Vector3 vs2 = dot2 * toCentre;
 			m_forces += ((vs2 * sSphere.m_mass) - (vs1 * m_mass)) * 0.7f / fDt;
 		}
-		m_forces -= 80.0f * x * (toCentre / len);
+		m_forces -= 120.0f * x * (toCentre / len);
 	}
 }
