@@ -19,6 +19,34 @@ using namespace std;
 #include "TextField.h"
 
 #define UPDATE_INTERVAL 20
+#define STARTING_BALLS 4000
+
+#define UPPER_SPHERE_SPRING_CONST 200.0f
+#define LOWER_SPHERE_SPRING_CONST 0.1f
+
+#define UPPER_FLOOR_SPRING_CONST 800.0f
+#define LOWER_FLOOR_SPRING_CONST 2.0f
+
+#define UPPER_SPHERE_DAMP_FACTOR 2.0f
+#define LOWER_SPHERE_DAMP_FACTOR 0.05f
+
+#define UPPER_FLOOR_DAMP_FACTOR 10.0f
+#define LOWER_FLOOR_DAMP_FACTOR 0.1f
+
+#define UPPER_FRAME_STEP 0.02f
+#define LOWER_FRAME_STEP 0.2f
+
+#define FLOOR_SPRING_GRAD (LOWER_FLOOR_SPRING_CONST - UPPER_FLOOR_SPRING_CONST) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define FLOOR_SPRING_CONST FLOOR_SPRING_GRAD * UPPER_FRAME_STEP + UPPER_FLOOR_SPRING_CONST
+
+#define SPHERE_SPRING_GRAD (LOWER_SPHERE_SPRING_CONST - UPPER_SPHERE_SPRING_CONST) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define SPHERE_SPRING_CONST SPHERE_SPRING_GRAD * UPPER_FRAME_STEP + UPPER_SPHERE_SPRING_CONST
+
+#define FLOOR_DAMP_GRAD (LOWER_FLOOR_DAMP_FACTOR - UPPER_FLOOR_DAMP_FACTOR) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define FLOOR_DAMP_CONST FLOOR_DAMP_GRAD * UPPER_FRAME_STEP + UPPER_FLOOR_DAMP_FACTOR
+
+#define SPHERE_DAMP_GRAD (LOWER_SPHERE_DAMP_FACTOR - UPPER_SPHERE_DAMP_FACTOR) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define SPHERE_DAMP_CONST SPHERE_DAMP_GRAD * UPPER_FRAME_STEP + UPPER_SPHERE_DAMP_FACTOR
 
 int numSpheres = 0;
 Sphere *spheres = NULL;
@@ -28,6 +56,12 @@ GLuint disp;
 int oldX = -1, oldY = -1;
 int renderFrame = 0;
 int physicsFrame = 0;
+
+int renderFrameCounter = 0;
+int physicsFrameCounter = 0;
+
+int framesPerSecond = 0;
+int physicsPerSecond = 0;
 
 LARGE_INTEGER frequency, timeStart, timeEnd;
 double freq, totalTime;
@@ -48,9 +82,15 @@ boost::mutex physicsLock;
 
 int rendering = 0;
 
-TextField txtInstructions, txtNumSpheres, txtRenderFrames, txtPhysicsFrames;
+TextField txtNumThreads, txtInstructions, txtNumSpheres, txtRenderFrames, txtPhysicsFrames;
 
 int screenWidth = 800, screenHeight = 600;
+
+FORCEINLINE void calcForce(Vector3 &forces, const float &springConst, const float &dampFactor, const float &overlap, const Vector3 &tangent, const Vector3 &newVelocity)
+{
+	Vector3 vs = tangent * dot3(tangent, newVelocity);
+	forces -= (springConst * overlap * tangent) + (dampFactor * vs);
+}
 
 void boost::throw_exception(const std::exception &e)
 {
@@ -79,6 +119,7 @@ void physicsFrameFinish()
 	if(physicsRunning == 0)
 	{
 		physicsFrame++;
+		physicsFrameCounter++;
 	}
 	physicsLock.unlock();
 }
@@ -104,49 +145,64 @@ void addSpheres(int num)
 	{
 		boost::this_thread::yield();
 	}
-	Sphere *newArray;
 	int newSize = numSpheres + num;
 	if(newSize <= 0)
 	{
 		newSize = 0;
-		newArray = NULL;
 	}
 	else
 	{
-		//newArray = new Sphere[newSize];
-		newArray = (Sphere *)_aligned_malloc(sizeof(Sphere) * newSize, 64);
+		if(spheres == NULL)
+		{
+			spheres = (Sphere *)_aligned_malloc(sizeof(Sphere) * newSize, 64);
+		}
+		else
+		{
+			spheres = (Sphere *)_aligned_realloc(spheres, sizeof(Sphere) * newSize, 64);
+		}
 	}
 
 	int len = newSize > numSpheres ? numSpheres : newSize;
-
-	for(int i = 0; i < len; i++)
-	{
-		newArray[i] = spheres[i];
-	}
 
 	if(newSize > numSpheres)
 	{
 		for(int i = numSpheres; i < newSize; i++)
 		{
-			newArray[i] = Sphere();
-			newArray[i].m_position = Vector3(randf() * ROOM_SIZE * 2.0f - ROOM_SIZE, randf() * newSize * 0.02f - ROOM_SIZE, randf() * ROOM_SIZE * 2.0f - ROOM_SIZE);
-			newArray[i].m_velocity = Vector3(0);
-			//newArray[i].m_velocity = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize);
-			newArray[i].m_radius = randf() * 1.0f + 0.5f;
-			newArray[i].m_mass = newArray[i].m_radius * 5;
-			newArray[i].m_colour = (GLuint)(randf() * (0xFFFFFFFF));
+			spheres[i] = Sphere();
+			Sphere &sphere = spheres[i];
+			
+			//spheres[i].m_radius = randf() * 3.0f + 1.0f;
+			//spheres[i].m_mass = spheres[i].m_radius * 5;
+			//sphere.m_colour = (GLuint)(randf() * (0xFFFFFFFF));
+			sphere.m_position = Vector3(randf() * ROOM_SIZE * 2.0f - ROOM_SIZE, randf() * newSize * 0.02f - (ROOM_SIZE - spheres[i].m_radius) + 20.0f, randf() * ROOM_SIZE * 2.0f - ROOM_SIZE);
+			sphere.m_velocity = Vector3((randf() - 0.5f) * 10.0f, (randf() - 0.5f) * 10.0f, (randf() - 0.5f) * 10.0f);
+
+			if(i % 3 == 0)
+			{
+				sphere.m_colour = 0x0000FF;
+				sphere.m_radius = 0.5f;
+				sphere.m_mass = 1.0f;
+			}
+			else if(i % 3 == 1)
+			{
+				sphere.m_colour = 0x00FF00;
+				sphere.m_radius = 1.0f;
+				sphere.m_mass = 2.0f;
+			}
+			else
+			{
+				sphere.m_colour = 0xFF0000;
+				sphere.m_radius = 1.5f;
+				sphere.m_mass = 3.0f;
+			}
 		}
 	}
 
 	numSpheres = newSize;
 
 	char buff[32];
-	sprintf(buff, "Num Spheres:   %d", numSpheres);
+	sprintf(buff, "Num Spheres:    %d", numSpheres);
 	txtNumSpheres.setText(buff);
-
-	//delete []spheres;
-	_aligned_free(spheres);
-	spheres = newArray;
 
 	pauseSimulation = 0;
 }
@@ -178,12 +234,12 @@ void init(void)
 	QueryPerformanceFrequency( &frequency );
 	freq = (double)frequency.QuadPart / 1000.0, totalTime = 0.0;
 
-	addSpheres(500);
+	addSpheres(STARTING_BALLS);
 
 	ILubyte fontId = ilGenImage();
 	ilBindImage(fontId);
 
-	if(!ilLoad(IL_PNG, "default4.png"))
+	if(!ilLoad(IL_PNG, "default.png"))
 	{
 		cout << "Unable to load font image" << endl;
 	}
@@ -192,6 +248,7 @@ void init(void)
 		txtNumSpheres.setFontId(fontId);
 		txtRenderFrames.setFontId(fontId);
 		txtPhysicsFrames.setFontId(fontId);
+		txtNumThreads.setFontId(fontId);
 
 		txtInstructions.setFontId(fontId);
 		txtInstructions.setColour(0xFFFFAA);
@@ -239,6 +296,7 @@ void display(void)
 	glTranslated(0, 0, -zoom);
 	glRotatef(camRotateX, 1, 0, 0);
 	glRotatef(camRotateY, 0, 1, 0);
+	glTranslated(0, ROOM_SIZE, 0);
 	
 	while(pauseSimulation)
 	{
@@ -248,6 +306,7 @@ void display(void)
 	perspectiveView();
 
 	renderFrame++;
+	renderFrameCounter++;
 
 	threadStarted();
 
@@ -255,12 +314,10 @@ void display(void)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	
-	//glPushMatrix();
 	for(int i = 0; i < numSpheres; i++)
 	{
 		glPushMatrix();
-		//glColor3f(spheres[i].m_red, 0.2f, 0.4f);
-		glColor3bv((GLbyte*)&spheres[i].m_colour);
+		glColor3ubv((GLubyte*)&spheres[i].m_colour);
 #ifdef _SSE
 		float *pos = (float*)&spheres[i].m_position.m_v128;
 		glTranslatef(pos[0], pos[1], pos[2]);
@@ -279,23 +336,24 @@ void display(void)
 
 	orthographicView();
 
-	char buff[32];
+	char buff[64];
 
-	sprintf(buff, "Render frames: %d", renderFrame);
+	sprintf(buff, "Render frames:  %d (%d)", renderFrame, framesPerSecond);
 	txtRenderFrames.setText(buff);
 
-	sprintf(buff, "Physics frames: %d", physicsFrame);
+	sprintf(buff, "Physics frames: %d (%d)", physicsFrame, physicsPerSecond);
 	txtPhysicsFrames.setText(buff);
 
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	txtInstructions.render(10, 10);
-	txtNumSpheres.render(10, 24);
-	txtRenderFrames.render(10, 38);
-	txtPhysicsFrames.render(10, 52);
-
+	txtNumThreads.render(10, 22);
+	txtNumSpheres.render(10, 34);
+	txtRenderFrames.render(10, 46);
+	txtPhysicsFrames.render(10, 58);
+	
 	glDisable(GL_BLEND);
 
 	glutSwapBuffers();
@@ -350,7 +408,6 @@ void mouseMoveFunc(int x, int y)
 
 void redrawLoop(int value)
 {
-	//glutPostRedisplay();
 	display();
 	glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
 }
@@ -359,11 +416,11 @@ void keyFunc(unsigned char key, int x, int y)
 {
 	if(key == '+')
 	{
-		addSpheres(100);
+		addSpheres(1000);
 	}
 	else if(key == '-')
 	{
-		addSpheres(-100);
+		addSpheres(-1000);
 	}
 
 	cout << "Total spheres: " << numSpheres << endl;
@@ -373,6 +430,18 @@ void physicsThread(int threadNum)
 {
 	int threadRunning = 0;
 	int localFrame = 0;
+
+	static const Vector3 bottom(0, 1, 0);
+	static const Vector3 left(1, 0, 0);
+	static const Vector3 right(-1, 0, 0);
+	static const Vector3 front(0, 0, -1);
+	static const Vector3 back(0, 0, 1);
+
+	float floorSpringConst = UPPER_FLOOR_SPRING_CONST;
+	float sphereSpringConst = UPPER_SPHERE_SPRING_CONST;
+
+	float floorDampFactor = UPPER_FLOOR_DAMP_FACTOR;
+	float sphereDampFactor = UPPER_SPHERE_DAMP_FACTOR;
 
 	while(programRunning)
 	{
@@ -403,34 +472,125 @@ void physicsThread(int threadNum)
 
 		physicsFrameStart();
 
-		float num = (float)numSpheres / (float)numPhysicsThreads;
-		int lower = (int)(threadNum * num);
-		int upper = (int)((threadNum + 1) * num);
 		LARGE_INTEGER time;
 		QueryPerformanceCounter(&time);
 
 		float dt = ((double)time.QuadPart - (double)updateTimes[threadNum].QuadPart) / freq;
 		dt *= 0.001;
 
-		for(int i = lower; i < upper; i++)
+		floorSpringConst = FLOOR_SPRING_GRAD * dt + FLOOR_SPRING_CONST;
+		sphereSpringConst = SPHERE_SPRING_GRAD * dt + SPHERE_SPRING_CONST;
+
+		floorDampFactor = FLOOR_DAMP_GRAD * dt + FLOOR_DAMP_CONST;
+		sphereDampFactor = SPHERE_DAMP_GRAD * dt + SPHERE_DAMP_CONST;
+
+		if (floorSpringConst < LOWER_FLOOR_SPRING_CONST)
+			floorSpringConst = LOWER_FLOOR_SPRING_CONST;
+
+		if (sphereSpringConst < LOWER_SPHERE_SPRING_CONST)
+			sphereSpringConst = LOWER_SPHERE_SPRING_CONST;
+
+		if (floorDampFactor < LOWER_FLOOR_DAMP_FACTOR)
+			floorDampFactor = LOWER_FLOOR_DAMP_FACTOR;
+
+		if (sphereDampFactor < LOWER_SPHERE_DAMP_FACTOR)
+			sphereDampFactor = LOWER_SPHERE_DAMP_FACTOR;
+
+		cout << "dt: " << dt << " (" << floorSpringConst << ", " << sphereSpringConst << "), (" << floorDampFactor << ", " << sphereDampFactor << ")" << endl;
+
+		for(int i = threadNum; i < numSpheres; i += numPhysicsThreads)
 		{
+			Sphere &sphere = spheres[i];
+
+			float roomSize = ROOM_SIZE - sphere.m_radius;
+
+			Vector3 forces(0);
+
+			Vector3 halfVelo = sphere.m_velocity + (0.5f * sphere.m_acc * dt);
+			sphere.m_position += halfVelo * dt;
+
+			Vector3 tempVelocity = sphere.m_velocity + (sphere.m_acc * dt);
+
+			float overlap;
+
 			for(int j = 0; j < numSpheres; j++)
 			{
 				if(i == j)
 					continue;
+
+				Sphere &otherSphere = spheres[j];
+				float combinedRadius = sphere.m_radius + otherSphere.m_radius;
+				float combinedRadiusSqrd = combinedRadius * combinedRadius;
+				Vector3 toCentre = sphere.m_position - otherSphere.m_position;
+				float lengthSqrd = lengthSquared(toCentre);
+				float overlapSqrd = lengthSqrd - combinedRadiusSqrd;
+				if(overlapSqrd < 0)
+				{
+					overlap = sqrt(lengthSqrd) - combinedRadius;
+					Vector3 tangent = normalize(toCentre);
+					calcForce(forces, sphereSpringConst, sphereDampFactor, overlap, tangent, tempVelocity);
+				}
+			}
+			
+			overlap = dot3(sphere.m_position, bottom) + roomSize;
+			if(overlap < 0)
+			{
+				calcForce(forces, floorSpringConst, floorDampFactor, overlap, bottom, tempVelocity);
+			}
+
+			overlap = dot3(sphere.m_position, left) + roomSize;
+			if(overlap < 0)
+			{
+				calcForce(forces, floorSpringConst, floorDampFactor, overlap, left, tempVelocity);
+			}
+
+			overlap = dot3(sphere.m_position, right) + roomSize;
+			if(overlap < 0)
+			{
+				calcForce(forces, floorSpringConst, floorDampFactor, overlap, right, tempVelocity);
+			}
+
+			overlap = dot3(sphere.m_position, front) + roomSize;
+			if(overlap < 0)
+			{
+				calcForce(forces, floorSpringConst, floorDampFactor, overlap, front, tempVelocity);
+			}
+
+			overlap = dot3(sphere.m_position, back) + roomSize;
+			if(overlap < 0)
+			{
+				calcForce(forces, floorSpringConst, floorDampFactor, overlap, back, tempVelocity);
+			}
+			
+			sphere.m_acc = forces / sphere.m_mass;
+			sphere.m_acc += Vector3(0.0f, -9.8f, 0.0f);
+
+			sphere.m_velocity = halfVelo + (0.5f * sphere.m_acc * dt);
+
+			/*for(int j = 0; j < numSpheres; j++)
+			{
+				if(i == j)
+					continue;
+
+
+
 				spheres[i].collideWith2(dt, spheres[j]);
 			}
+			spheres[i].update(dt);*/
 		}
-
-		for(int i = lower; i < upper; i++)
-		{
-			spheres[i].update(dt);
-		}
-
 		updateTimes[threadNum] = time;
 
 		physicsFrameFinish();
 	}
+}
+
+void frameRateFunc(int value)
+{
+	framesPerSecond = renderFrameCounter;
+	physicsPerSecond = physicsFrameCounter;
+	renderFrameCounter = 0;
+	physicsFrameCounter = 0;
+	glutTimerFunc(1000, frameRateFunc, 0);
 }
 
 int main(int argc, char** argv)
@@ -441,7 +601,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	
 	glutInitWindowSize (screenWidth, screenHeight); 
-	glutInitWindowPosition (100, 100);
+	glutInitWindowPosition (300, 100);
 	glutCreateWindow (argv[0]);
 	init ();
 	glutDisplayFunc(display); 
@@ -450,14 +610,20 @@ int main(int argc, char** argv)
 	glutMouseFunc(mouseFunc);
 	glutMotionFunc(mouseMoveFunc);
 	//glutTimerFunc(UPDATE_INTERVAL, redrawLoop, 0);
+	glutTimerFunc(1000, frameRateFunc, 0);
 	redrawLoop(0);
 
 	LARGE_INTEGER firstTime;
 	QueryPerformanceCounter(&firstTime);
 
 	numPhysicsThreads = boost::thread::hardware_concurrency();
-	//numPhysicsThreads = 1;
+	numPhysicsThreads = 1;
 	boost::thread_group threads;
+
+	char buff[32];
+
+	sprintf(buff, "Num threads:    %d", numPhysicsThreads);
+	txtNumThreads.setText(buff);
 
 	updateTimes = new LARGE_INTEGER[numPhysicsThreads];
 

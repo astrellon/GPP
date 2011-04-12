@@ -17,7 +17,6 @@ typedef struct _Sphere
 {
 	Vector3 m_position;
 	Vector3 m_velocity;
-	Vector3 m_forces;
 	Vector3 m_acc;
 
 	_Sphere();
@@ -29,11 +28,16 @@ typedef struct _Sphere
 
 	//float m_red;
 	GLuint m_colour;
-
-	void collideWith2(const double &fDt, const _Sphere &sSphere);
-	void collideWith3(const double &fDt, const _Sphere &sSphere);
-
+	/*
+	FORCELINE void calcForce(Vector3 &forces, const float &springConst, const float &dampFactor, const float &overlap, const Vector3 &tangent, const Vector3 &newVelocity)
+	{
+		Vector3 vs = tangent * dot3(tangent, newVelocity);
+		forces -= (springConst * overlap * tangent) + (dampFactor * vs);
+	}*/
+	/*
 	void update(const double &fDt);
 
+	void update2(const double &fDt);
+	*/
 	//void refresh();
 } Sphere;

@@ -55,6 +55,8 @@ void TextField::render(int x, int y)
 
 	glEnd();
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glPopMatrix();
 }
 
