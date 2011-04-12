@@ -6,11 +6,11 @@ using namespace std;
 
 #define BOUNCE 0.6f
 
-//Sphere::_Sphere() : m_position(0), m_mass(1.0f), m_radius(1.0f), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
-Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_colour(0)
+Sphere::_Sphere() : m_position(0), m_mass(1.0f), m_radius(1.0f), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
+//Sphere::_Sphere() : m_mass(1.0f), m_radius(1.0f), m_colour(0)
 {
-	m_acc = Vector3(0);
-	m_forces = Vector3(0);
+	//m_acc = Vector3(0);
+	//m_forces = Vector3(0);
 }
 /*
 Sphere::_Sphere(const Vector3 &vc3Position, const float &fRadius, const float &fMass) : m_radius(fRadius), m_mass(fMass), m_colour(0), m_velocity(0), m_acc(0), m_forces(0)
@@ -89,7 +89,6 @@ void Sphere::update(const double &fDt)
 	m_acc = m_forces / m_mass;
 	m_velocity = halfVelo + 0.5f * m_acc * fDt;
 
-	//m_forces.setY(m_forces.getY() - 9.8f * m_mass);// * fDt;
 	m_velocity -= Vector3(0.0f, 9.8f * fDt, 0.0f);
 
 	float distance = dot3(m_position, bottom) + roomSize;
@@ -172,6 +171,21 @@ void Sphere::update(const double &fDt)
 	m_forces = Vector3(0.0f);
 }
 
+void Sphere::collideWith(const double &fDt, const _Sphere &sSphere)
+{
+	Vector3 toCentre = m_position - sSphere.m_position;
+	float lenSqrd = lengthSquared(toCentre);
+	if(lengthSquared == 0)
+		return;
+
+	float len = sqrt(lenSqrd);
+	float x = len - m_radius - sSphere.m_radius;
+	if(x < 0)
+	{
+		m_forces += -80.0f * x * toCentre;
+	}
+}
+
 void Sphere::collideWith2(const double &fDt, const _Sphere &sSphere)
 {
 	Vector3 toCentre = (m_position + m_velocity * fDt) - (sSphere.m_position + sSphere.m_velocity * fDt);
@@ -179,10 +193,16 @@ void Sphere::collideWith2(const double &fDt, const _Sphere &sSphere)
 	float lenSqrd = lengthSquared(toCentre);
 	if(lenSqrd == 0)
 		return;
-	float len = sqrt(lenSqrd);
-	float x = len - m_radius - sSphere.m_radius;
-	if(x < 0)
+	float combinedRadius = m_radius + sSphere.m_radius;
+	combinedRadius *= combinedRadius;
+	
+	if(lenSqrd < combinedRadius)
 	{
+		float len = sqrt(lenSqrd);
+		float x = len - m_radius - sSphere.m_radius;
+		if(x > 0)
+			return;
+
 		float resp = 1.0f / lenSqrd;
 
 		float dot1 = dot3(m_velocity, toCentre) * resp;
