@@ -48,7 +48,7 @@ boost::mutex physicsLock;
 
 int rendering = 0;
 
-TextField txtInstructions, txtNumSpheres, txtRenderFrames, txtPhysicsFrames;
+TextField txtNumThreads, txtInstructions, txtNumSpheres, txtRenderFrames, txtPhysicsFrames;
 
 int screenWidth = 800, screenHeight = 600;
 
@@ -104,49 +104,43 @@ void addSpheres(int num)
 	{
 		boost::this_thread::yield();
 	}
-	Sphere *newArray;
 	int newSize = numSpheres + num;
 	if(newSize <= 0)
 	{
 		newSize = 0;
-		newArray = NULL;
 	}
 	else
 	{
-		//newArray = new Sphere[newSize];
-		newArray = (Sphere *)_aligned_malloc(sizeof(Sphere) * newSize, 64);
+		if(spheres == NULL)
+		{
+			spheres = (Sphere *)_aligned_malloc(sizeof(Sphere) * newSize, 64);
+		}
+		else
+		{
+			spheres = (Sphere *)_aligned_realloc(spheres, sizeof(Sphere) * newSize, 64);
+		}
 	}
 
 	int len = newSize > numSpheres ? numSpheres : newSize;
-
-	for(int i = 0; i < len; i++)
-	{
-		newArray[i] = spheres[i];
-	}
 
 	if(newSize > numSpheres)
 	{
 		for(int i = numSpheres; i < newSize; i++)
 		{
-			newArray[i] = Sphere();
-			newArray[i].m_position = Vector3(randf() * ROOM_SIZE * 2.0f - ROOM_SIZE, randf() * newSize * 0.02f - ROOM_SIZE, randf() * ROOM_SIZE * 2.0f - ROOM_SIZE);
-			newArray[i].m_velocity = Vector3(0);
-			//newArray[i].m_velocity = Vector3(randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize, randf() * roomSize * 2.0f - roomSize);
-			newArray[i].m_radius = randf() * 1.0f + 0.5f;
-			newArray[i].m_mass = newArray[i].m_radius * 5;
-			newArray[i].m_colour = (GLuint)(randf() * (0xFFFFFFFF));
+			spheres[i] = Sphere();
+			spheres[i].m_position = Vector3(randf() * ROOM_SIZE * 2.0f - ROOM_SIZE, randf() * newSize * 0.02f - ROOM_SIZE, randf() * ROOM_SIZE * 2.0f - ROOM_SIZE);
+			spheres[i].m_velocity = Vector3(0);
+			spheres[i].m_radius = randf() * 3.0f + 1.0f;
+			spheres[i].m_mass = spheres[i].m_radius * 5;
+			spheres[i].m_colour = (GLuint)(randf() * (0xFFFFFFFF));
 		}
 	}
 
 	numSpheres = newSize;
 
 	char buff[32];
-	sprintf(buff, "Num Spheres:   %d", numSpheres);
+	sprintf(buff, "Num Spheres:    %d", numSpheres);
 	txtNumSpheres.setText(buff);
-
-	//delete []spheres;
-	_aligned_free(spheres);
-	spheres = newArray;
 
 	pauseSimulation = 0;
 }
@@ -183,7 +177,7 @@ void init(void)
 	ILubyte fontId = ilGenImage();
 	ilBindImage(fontId);
 
-	if(!ilLoad(IL_PNG, "default4.png"))
+	if(!ilLoad(IL_PNG, "default.png"))
 	{
 		cout << "Unable to load font image" << endl;
 	}
@@ -192,6 +186,7 @@ void init(void)
 		txtNumSpheres.setFontId(fontId);
 		txtRenderFrames.setFontId(fontId);
 		txtPhysicsFrames.setFontId(fontId);
+		txtNumThreads.setFontId(fontId);
 
 		txtInstructions.setFontId(fontId);
 		txtInstructions.setColour(0xFFFFAA);
@@ -281,7 +276,7 @@ void display(void)
 
 	char buff[32];
 
-	sprintf(buff, "Render frames: %d", renderFrame);
+	sprintf(buff, "Render frames:  %d", renderFrame);
 	txtRenderFrames.setText(buff);
 
 	sprintf(buff, "Physics frames: %d", physicsFrame);
@@ -290,12 +285,13 @@ void display(void)
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	txtInstructions.render(10, 10);
-	txtNumSpheres.render(10, 24);
-	txtRenderFrames.render(10, 38);
-	txtPhysicsFrames.render(10, 52);
-
+	txtNumThreads.render(10, 22);
+	txtNumSpheres.render(10, 34);
+	txtRenderFrames.render(10, 46);
+	txtPhysicsFrames.render(10, 58);
+	
 	glDisable(GL_BLEND);
 
 	glutSwapBuffers();
@@ -412,7 +408,7 @@ void physicsThread(int threadNum)
 		float dt = ((double)time.QuadPart - (double)updateTimes[threadNum].QuadPart) / freq;
 		dt *= 0.001;
 
-		for(int i = lower; i < upper; i++)
+		for(int i = threadNum; i < numSpheres; i += numPhysicsThreads)
 		{
 			for(int j = 0; j < numSpheres; j++)
 			{
@@ -420,13 +416,14 @@ void physicsThread(int threadNum)
 					continue;
 				spheres[i].collideWith2(dt, spheres[j]);
 			}
+			spheres[i].update(dt);
 		}
-
-		for(int i = lower; i < upper; i++)
+		/*
+		for(int i = threadNum; i < numSpheres; i += numPhysicsThreads)
 		{
 			spheres[i].update(dt);
 		}
-
+		*/
 		updateTimes[threadNum] = time;
 
 		physicsFrameFinish();
@@ -458,6 +455,11 @@ int main(int argc, char** argv)
 	numPhysicsThreads = boost::thread::hardware_concurrency();
 	//numPhysicsThreads = 1;
 	boost::thread_group threads;
+
+	char buff[32];
+
+	sprintf(buff, "Num threads:    %d", numPhysicsThreads);
+	txtNumThreads.setText(buff);
 
 	updateTimes = new LARGE_INTEGER[numPhysicsThreads];
 
