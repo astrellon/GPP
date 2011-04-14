@@ -12,7 +12,7 @@
 *		'window' Is A Parameter Used In Calls To NeHeGL                          *
 *		'keys' Is A Structure Containing The Up/Down Status Of keys              *
 *                                                                                *
-*	void Deinitialize (void);                                                    *
+*	void deinit (void);															 *
 *		Performs All Your DeInitialization                                       *
 *                                                                                *
 *	void Update (DWORD milliseconds);                                            *
@@ -24,6 +24,10 @@
 *		Perform All Your Scene Drawing                                           *
 *                                                                                *
 *********************************************************************************/
+
+// Modified by Alan Lawrey 2011 to include support for calling 
+// mouse move and keyboard down functions (that are defined externally).
+// Also no longer continues to ask if you want to run full screen!
 
 #ifndef GL_FRAMEWORK__INCLUDED
 #define GL_FRAMEWORK__INCLUDED
@@ -58,11 +62,7 @@ typedef struct {									// Contains Information Vital To A Window
 	DWORD				lastTickCount;				// Tick Counter
 } GL_Window;										// GL_Window
 
-#define WM_TOGGLEFULLSCREEN (WM_USER+1)
-
-void TerminateApplication (GL_Window* window);		// Terminate The Application
-
-//void ToggleFullscreen (GL_Window* window);			// Toggle Fullscreen / Windowed Mode
+void terminateApplication (GL_Window* window);		// Terminate The Application
 
 void keyboardFunc(BOOL *keys, int key);
 void mouseFunc(int mouseButton, int x, int y);
@@ -70,7 +70,7 @@ void init();
 
 void reshape(int width, int height);
 
-void Deinitialize();
+void deinit();
 
 void update(DWORD milli);
 
@@ -289,7 +289,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;														// Return
 
 		case WM_CLOSE:													// Closing The Window
-			TerminateApplication(window);								// Terminate The Application
+			terminateApplication(window);								// Terminate The Application
 			programRunning = FALSE;
 		return 0;														// Return
 
@@ -334,11 +334,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				return 0;												// Return
 			}
 		break;															// Break
-
-		/*case WM_TOGGLEFULLSCREEN:										// Toggle FullScreen Mode On/Off
-			g_createFullScreen = (g_createFullScreen == TRUE) ? FALSE : TRUE;
-			PostMessage (hWnd, WM_QUIT, 0, 0);
-		break;	*/														// Break
+														// Break
 	}
 
 	return DefWindowProc (hWnd, uMsg, wParam, lParam);					// Pass Unhandled Messages To DefWindowProc
@@ -384,8 +380,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	window.keys					= &keys;								// Window Key Structure
 	window.init.application		= &application;							// Window Application
 	window.init.title			= "CSE4GPP Assignment Part 1: Alan Lawrey 15547299";	// Window Title
-	window.init.width			= 800;									// Window Width
-	window.init.height			= 600;									// Window Height
+	window.init.width			= 1024;									// Window Width
+	window.init.height			= 768;									// Window Height
 	window.init.bitsPerPixel	= 24;									// Bits Per Pixel
 	window.init.isFullScreen	= FALSE;									// Fullscreen? (Set To TRUE)
 
@@ -428,7 +424,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				}
 				else												// If There Are No Messages
 				{
-					int diff = 20;
+					int diff = 25;
 					if (window.isVisible == FALSE)					// If Window Is Not Visible
 					{
 						diff = 100;
@@ -443,8 +439,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 						//int diff = tickCount - window.lastTickCount;
 						diff -= tickCount - window.lastTickCount;
-						if(diff < 5)
-							diff = 5;
+						if(diff < 10)
+							diff = 10;
 						//Update (tickCount - window.lastTickCount);	// Update The Counter
 						window.lastTickCount = tickCount;			// Set Last Count To Current Count
 						display ();									// Draw Our Scene
@@ -457,7 +453,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			}
 
 			// Application Is Finished
-			Deinitialize ();											// User Defined DeInitialization
+			deinit ();											// User Defined DeInitialization
 
 			DestroyWindowGL (&window);									// Destroy The Active Window
 		}

@@ -1,3 +1,20 @@
+// CSE4GPP Assignment part 1 2011
+// Alan Lawrey 15547299
+
+// Semi generic OpenGL text renderer.
+// Does not support new line or non fixed width character fonts.
+// No enforced restriction on text length.
+//
+// Primary usage after a font texture has been loaded using DevIL.
+//
+// TextField text(fontId);
+// text.setText("some text");
+// text.render(10, 10);
+//
+// The text can be set/appended/cleared at any time. This will not cause the
+// text texture to update until the size of the texture or the texture id is
+// required.
+
 #pragma once
 
 #include <string>
@@ -12,7 +29,6 @@ using namespace std;
 class TextField
 {
 public:
-	//TextField(unsigned char *pixelData, int pixelWidth, int pixelHeight);
 	TextField();
 	TextField(ILubyte fontId);
 	~TextField(void);
@@ -38,8 +54,6 @@ protected:
 	void updateTexture();
 	void blit(char letter, int x, int y);
 
-	//unsigned char *m_pixel_data;
-
 	string m_text;
 	int m_dirty;
 
@@ -47,9 +61,6 @@ protected:
 	ILubyte m_font_id;
 
 	GLuint m_colour;
-
-	//int m_pixel_width;
-	//int m_pixel_height;
 
 	ILubyte *m_temp;
 

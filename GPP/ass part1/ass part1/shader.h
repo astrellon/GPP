@@ -1,3 +1,4 @@
+// My header made for shader.c by Josh A. Beam
 #pragma once
 
 #include <stdio.h>
