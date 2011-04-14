@@ -285,14 +285,9 @@ void init()
 	cpuid(1, iCPUVals);
 
 	bool sse4Support = false;
-	bool hyperThreading = false;
 	if(iCPUVals[2] & (1 << 19))
 	{
 		sse4Support = true;
-	}
-	if(iCPUVals[4] & (1 << 28))
-	{
-		hyperThreading = true;
 	}
 
 #ifdef _SSE4
@@ -317,11 +312,6 @@ void init()
 	#if _USE_MT
 		// Get the number of physics threads to use from boost.
 		numPhysicsThreads = boost::thread::hardware_concurrency();
-		// We're going to not use hyper threaded threads...
-		if(hyperThreading)
-		{
-			numPhysicsThreads /= 2;
-		}
 	#else
 		// Set that we're only using one thread, mostly for the purpose that
 		// the physics function uses the number of threads for striding.
