@@ -1,18 +1,20 @@
 #pragma once
 
 #include <Vector3.hpp>
+#include <Windows.h>
+#include "GLee\GLee.h"
+#include <gl\GL.h>
 
-typedef struct _Sphere
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433832795
+#endif
+
+typedef struct
 {
-	Vector3 m_position;
-	Vector3 m_velocity;
-	Vector3 m_acc;
+	GLuint numIndicies;
+	GLuint numVerticies;
+	GLuint vertexBufferId;
+	GLuint indexBufferId;
+} Mesh;
 
-	_Sphere();
-
-	float m_radius;
-	float m_mass;
-
-	unsigned int m_colour;
-
-} Sphere;
+Mesh createSphere(unsigned int latDivs, unsigned int lonDivs);

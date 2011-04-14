@@ -1,0 +1,73 @@
+#pragma once
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <Windows.h>
+
+#include "GLee\GLee.h"
+#include <gl\gl.h>
+#include <gl\glu.h>
+#include "IL\il.h"
+#include <stdlib.h>
+
+#define BOOST_NO_EXCEPTIONS
+
+#include <boost\thread\thread.hpp>
+#include <time.h>
+#include <iostream>
+
+using namespace std;
+
+#include "Globals.h"
+#include <Vector3.hpp>
+#include "Sphere.h"
+#include "TextField.h"
+#include "shader.h"
+
+#include "NeHeGL.h"
+
+
+#define UPDATE_INTERVAL 20
+#define STARTING_BALLS 1000
+
+#define UPPER_SPHERE_SPRING_CONST 200.0f
+#define LOWER_SPHERE_SPRING_CONST 30.0f
+
+#define UPPER_FLOOR_SPRING_CONST 800.0f
+#define LOWER_FLOOR_SPRING_CONST 120.0f
+
+#define UPPER_SPHERE_DAMP_FACTOR 2.0f
+#define LOWER_SPHERE_DAMP_FACTOR 0.5f
+
+#define UPPER_FLOOR_DAMP_FACTOR 10.0f
+#define LOWER_FLOOR_DAMP_FACTOR 2.0f
+
+#define UPPER_FRAME_STEP 0.02f
+#define LOWER_FRAME_STEP 0.20f
+
+#define FLOOR_SPRING_GRAD (LOWER_FLOOR_SPRING_CONST - UPPER_FLOOR_SPRING_CONST) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define FLOOR_SPRING_CONST FLOOR_SPRING_GRAD * UPPER_FRAME_STEP + UPPER_FLOOR_SPRING_CONST
+
+#define SPHERE_SPRING_GRAD (LOWER_SPHERE_SPRING_CONST - UPPER_SPHERE_SPRING_CONST) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define SPHERE_SPRING_CONST SPHERE_SPRING_GRAD * UPPER_FRAME_STEP + UPPER_SPHERE_SPRING_CONST
+
+#define FLOOR_DAMP_GRAD (LOWER_FLOOR_DAMP_FACTOR - UPPER_FLOOR_DAMP_FACTOR) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define FLOOR_DAMP_CONST FLOOR_DAMP_GRAD * UPPER_FRAME_STEP + UPPER_FLOOR_DAMP_FACTOR
+
+#define SPHERE_DAMP_GRAD (LOWER_SPHERE_DAMP_FACTOR - UPPER_SPHERE_DAMP_FACTOR) / (LOWER_FRAME_STEP - UPPER_FRAME_STEP)
+#define SPHERE_DAMP_CONST SPHERE_DAMP_GRAD * UPPER_FRAME_STEP + UPPER_SPHERE_DAMP_FACTOR
+
+//#define USER_SPHERE_SIZE 10.0f
+
+#define MAX_OBJECTS_PER_RENDER 249
+
+#define GRAVITY Vector3(0.0f, -9.8f, 0.0f)
+
+void boost::throw_exception(const std::exception &e)
+{
+}
+
+float randf()
+{
+	return (float)rand() / (float)RAND_MAX;
+}
