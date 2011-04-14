@@ -63,19 +63,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(BOOST_ROOT);../../lab04/lab04;$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
     <LibraryPath>GLee\;DevIL\;$(BOOST_ROOT)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SSE)|Win32'">
-    <IncludePath>$(BOOST_ROOT);../../lab04/lab04;$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
     <LibraryPath>GLee\;DevIL\;$(BOOST_ROOT)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(BOOST_ROOT);../../lab04/lab04;$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
     <LibraryPath>GLee\;DevIL\;$(BOOST_ROOT)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SSE)|Win32'">
-    <IncludePath>$(BOOST_ROOT);../../lab04/lab04;$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
     <LibraryPath>GLee\;DevIL\;$(BOOST_ROOT)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -164,6 +164,10 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="TextField.h" />
+    <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Vector3.hpp" />
+    <ClInclude Include="Vector3_Scalar.hpp" />
+    <ClInclude Include="Vector3_SSE.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Vector3.hpp>
+#include "Vector3.hpp"
 #include <Windows.h>
 #include "GLee\GLee.h"
 #include <gl\GL.h>
