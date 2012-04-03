@@ -4,45 +4,57 @@
 #include "matrix.h"
 #include "iscene_element.h"
 #include "ray.h"
+#include "math.h"
 
 class Camera : public ISceneElement {
 public:
 	Camera() {
 		resX = 40;
 		resY = 30;
-		aspect = 4.0 / 3.0;
+		aspect = 4.0f / 3.0f;
+		fov = M_PI * 0.5f;
 	}
 	~Camera() {}
 	
 	Ray getRay(int x, int y) {
 		Vector4f start;
 		Vector4f dir(0, 0, 1);
+		
+		y = resY - y;
+		x = resX - x;
+		float rx = (float)x / (float)resX - 0.5f;
+		float ry = (float)y / (float)resY - 0.5f;
+		rx *= fov * aspect;
+		ry *= fov;
+		
 		if (ortho) {
-			y = resY - y;
-			x = resX - x;
-			float rx = (float)x / (float)resX - 0.5f;
-			float ry = (float)y / (float)resY - 0.5f;
-			rx *= aperture * aspect;
-			ry *= aperture;
-			
 			start.x = rx;
 			start.y = ry;
+			
+		cout << "Firing ray (" << x << ',' << y << ") " << start << '\n';
 		}
 		else {
-		
+			
+			//dir.x = 1.0f - sqrt(1 - rx * rx);
+			//dir.y = 1.0f - sqrt(1 - ry * ry);
+			//dir.x = x - (float)resX * 0.5f;
+			//dir.y = y - (float)resY * 0.5f;
+			//dir.normalise();
+			printf("(%d, %d) %f, %f\n", x, y, dir.x, dir.y);
 		}
-		transform.transformVectorConst(dir);
-		transform.transformVectorConst(start);
-		transform.translateVector(start);
 		
+		Matrix4f &m = transform.getWorldToObj();
+		m.transformVectorConst(dir);
+		m.transformVectorConst(start);
+		m.translateVector(start);
 		return Ray(start, dir);
 	}
 	
-	inline void flipZ() {
+	/*inline void flipZ() {
 		transform.xz = -transform.xz;
 		transform.yz = -transform.yz;
 		transform.zz = -transform.zz;
-	}
+	}*/
 	
 	inline bool getOrtho() const {
 		return ortho;
@@ -51,11 +63,11 @@ public:
 		ortho = o;
 	}
 	
-	inline float getAperture() const {
-		return aperture;
+	inline float getFov() const {
+		return fov;
 	}
-	inline void setAperture(float a) {
-		aperture = a;
+	inline void setFov(float f) {
+		fov = f;
 	}
 	
 	inline int getResX() const {
@@ -83,7 +95,7 @@ public:
 	
 protected:
 	bool ortho;
-	float aperture;
+	float fov;
 	
 	int resX;
 	int resY;

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "matrix.h"
+#include "transform.h"
 
 class ISceneElement {
 public:
-	virtual Matrix4f &getTransform() {
+	virtual Transform &getTransform() {
 		return transform;
 	}
 	
@@ -18,10 +18,10 @@ public:
 		enabled = e;
 	}
 	Vector4f getPosition() const {
-		return Vector4f(transform.wx, transform.wy, transform.wz);
+		return transform.getPosition();
 	}
 	
 protected:
-	Matrix4f transform;
+	Transform transform;
 	bool enabled;
 };

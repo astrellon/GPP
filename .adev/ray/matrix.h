@@ -153,8 +153,8 @@ public:
 		xy = xz = xw = 
 		yx = yz = yw = 
 		zx = zy = zw = 
-		wx = wy = wz = (T)0;
-		xx = yy = zz = ww = (T)1;
+		wx = wy = wz = 0;
+		xx = yy = zz = ww = 1;
 	}
 
 	void displayMatrix() const

@@ -26,6 +26,16 @@ public:
 		camera = cam;
 	}
 	
+	void preproc() {
+		camera.getTransform().preproc();
+		for (int i = 0; i < renderables.size(); i++) {
+			renderables[i]->getTransform().preproc();
+		}
+		for (int i = 0; i < lights.size(); i++) {
+			lights[i]->getTransform().preproc();
+		}
+	}
+	
 	FrameBuffer &render() {
 		maxLum = 1e-36f;
 		minLum = 1e36f;
@@ -35,7 +45,9 @@ public:
 			framebuf.getHeight() != resy) {
 			framebuf.setSize(resx, resy);
 		}
-		
+		preproc();
+		printf("Num scene elements: %d\n", renderables.size());
+		printf("Num scene light: %d\n", lights.size());
 		for (int y = 0; y < resy; y++) {
 			for (int x = 0; x < resx; x++) {
 				Ray r = camera.getRay(x, y);
@@ -53,19 +65,31 @@ public:
 	
 	RayHitResult fireRay(Ray &r) const {
 		RayHitResult result;
+		//cout << "Firing " << r.getStart() << " at " << renderables.size() << " objects\n";
+		float closest = 1e36;
 		for (int i = 0; i < renderables.size(); i++) {
+			//printf("Check obj %d ", i);
 			IRenderable *c = renderables[i];
-			if (c->collides(r, result)) {
-				Vector4f lightColour = getLightColour(result.worldPos.add(result.normal.scale(0.01)), result.normal);
+			RayHitResult hitResult;
+			bool hits = c->collides(r, hitResult);
+			//printf("%d\n", hits);
+			//cout << r.getStart() << ',' << i << " hits: " << hits << '\n';
+			if (hits) {
+				if (hitResult.len < closest) {
+					closest = hitResult.len;
+					//closestObj = hitResult.target;
+					result = hitResult;
+				}
+			}
+		}
+		if (result.target != NULL) {
+			Vector4f lightColour = getLightColour(result.worldPos.add(result.normal.scale(0.01)), result.normal);
 				//Vector4f lightColour = getLightColour(result.worldPos, result.normal);
 				
-				const Material *mat = result.target->getMaterial();
-				r.colour.addTo(lightColour.multiply(mat->getDiffuse()));
-				
-				break;
-			}
-			return result;
+			const Material *mat = result.target->getMaterial();
+			r.colour.addTo(lightColour.multiply(mat->getDiffuse()));
 		}
+		return result;
 	}
 	
 	Vector4f getLightColour(const Vector4f &pos, const Vector4f &normal) const {

@@ -78,28 +78,50 @@ public:
 
 	operator Vector<float>() const
 	{
-		return Vector<float>((float)x, (float)y, (float)z, (float)w);
+		return Vector<float>(static_cast<float>(x),
+			static_cast<float>(y),
+			static_cast<float>(z),
+			static_cast<float>(w));
 	}
 
 	operator Vector<double>() const
 	{
-		return Vector<double>((double)x, (double)y, (double)z, (double)w);
+		return Vector<double>(static_cast<double>(x),
+			static_cast<double>(y),
+			static_cast<double>(z),
+			static_cast<double>(w));
 	}
 
 	operator Vector<long double>() const
 	{
-		return Vector<long double>((long double)x, (long double)y, (long double)z, (long double)w);
+		return Vector<long double>(static_cast<long double>(x),
+			static_cast<long double>(y),
+			static_cast<long double>(z),
+			static_cast<long double>(w));
 	}
 
 	template <class F>
 	operator Vector<F>() const
 	{
-		return Vector<F>((F)round(x), (F)round(y), (F)round(z), (F)round(w));
+		return Vector<F>(static_cast<F>(round(x)),
+			static_cast<F>(round(y)),
+			static_cast<F>(round(z)),
+			static_cast<F>(round(w)));
 	}
 
 	inline Vector<T> scale(double factor) const
 	{
-		return Vector<T>((T)(x * factor), (T)(y * factor), (T)(z * factor), 1);
+		return Vector<T>(static_cast<T>(x * factor),
+			static_cast<T>(y * factor),
+			static_cast<T>(z * factor), 
+			1);
+	}
+	inline Vector<T> &scaleBy(double factor)
+	{
+		x *= factor;
+		y *= factor;
+		z *= factor;
+		return *this;
 	}
 
 	inline Vector<T> multiply(const Vector<T> &rhs) const {
@@ -112,10 +134,10 @@ public:
 		if(len != 0.0)
 		{
 			double resp = 1.0 / len;
-			x = (T)(x * resp);
-			y = (T)(y * resp);
-			z = (T)(z * resp);
-			w = (T)1; 
+			x = static_cast<T>(x * resp);
+			y = static_cast<T>(y * resp);
+			z = static_cast<T>(z * resp);
+			w = 1; 
 		}
 
 		return *this;
@@ -123,11 +145,14 @@ public:
 
 	inline bool equals(const Vector<T> &rhs, double tolerance = 0)
 	const {
-		if(tolerance > 0)
+		if(tolerance > 0.0)
 		{
-			return (double)abs(rhs.x - x) <= tolerance &&
-				(double)abs(rhs.y - y) <= tolerance &&
-				(double)abs(rhs.z - z) <= tolerance;
+			double dx = static_cast<double>(rhs.x - x);
+			double dy = static_cast<double>(rhs.y - y);
+			double dz = static_cast<double>(rhs.z - z);
+			return dx >= -tolerance && dx <= tolerance &&
+				dy >= -tolerance && dy <= tolerance &&
+				dz >= -tolerance && dz <= tolerance;
 		}
 		else
 		{
@@ -136,13 +161,18 @@ public:
 	}
 
 	inline double length() const { 
-		return sqrt((double)(x * x + y * y + z * z)); 
+		return sqrt(static_cast<double>(x * x + y * y + z * z)); 
 	}
 	inline double lengthSqrd() const { 
-		return (double)(x * x + y * y + z * z); 
+		return static_cast<double>(x * x + y * y + z * z); 
 	}
 	inline double dot(const Vector<T> &rhs) const { 
-		return (double)(x * rhs.x + y * rhs.y + z * rhs.z); 
+		return static_cast<double>(x * rhs.x + y * rhs.y + z * rhs.z); 
+	}
+	inline Vector<T> cross(const Vector<T> &rhs) const {
+		return Vector<T>(y * rhs.z - z * rhs.y, 
+			z * rhs.x - x * rhs.z,
+			x * rhs.y - y * rhs.x);
 	}
 	inline double distance(const Vector<T> &rhs) const {
 		double dx = x - rhs.x;

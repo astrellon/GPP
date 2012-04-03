@@ -13,4 +13,5 @@ public:
 	const IRenderable *target;
 	Vector4f worldPos;
 	Vector4f normal;
+	float len;
 };

@@ -2,7 +2,6 @@
 
 #include "vector.h"
 #include "material.h"
-//#include "icollidable.h"
 #include "irenderable.h"
 
 #include <iostream>
@@ -22,7 +21,9 @@ public:
 	
 	virtual bool collides(const Ray &r, RayHitResult &result) const { 
 		//Compute A, B and C coefficients 
-		Vector4f start = transform.translateVectorConst(r.getStart());
+		//Vector4f start = transform.getWorldToObj().translateVectorConst(r.getStart());
+		Vector4f start = r.getStart().add(transform.getPosition());
+		//cout << "Ray start: " << start << '\n'; 
 		Vector4f dir = r.getDir();
 		float a = dir.dot(dir); 
 		float b = 2.0f * dir.dot(start); 
@@ -63,24 +64,19 @@ public:
 		// if t0 is less than zero, the intersection point is at t1 
 		
 		float len = 0;
-		if (t0 < 0) { 
-			//*t = t1; 
+		if (t0 < 0) {
 			len = t1;
 		} // else the intersection point is at t0 
-		else { 
-			//*t = t0; 
+		else {
 			len = t0;
 		}
-		
+		result.len = len;
 		Vector4f ss = r.getStart();
 		result.worldPos = ss.add(r.getDir().scale(len));
 		result.normal = start.add(dir.scale(len)).normalise();
-		//cout << '(' << ss.x << ',' << ss.y << ") " << result.worldPos << ',' << result.normal << ',' << len << ',' << r.getStart() << ',' << start << '\n';
-		//printf("%f, %f: %f\n", r.getStart().x, r.getStart().y, len);
+		
 		return true;
 	}
-//protected:
-	//Material mat;
-	//Vector4f pos;
+	
 	float size;
 };
