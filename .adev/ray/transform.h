@@ -10,6 +10,7 @@ public:
 		right = REF_RIGHT;
 		forward = REF_FORWARD;
 		dirty = false;
+		target = position.add(forward);
 	}
 	~Transform() {}
 	

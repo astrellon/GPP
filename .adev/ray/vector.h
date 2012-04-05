@@ -181,6 +181,12 @@ public:
 		return sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
+	inline bool operator == (const Vector<T> &rhs) {
+		return equals(rhs);
+	}
+	inline bool operator != (const Vector<T> &rhs) {
+		return !equals(rhs);
+	}
 	inline Vector<T> &operator =(const Vector<T> &rhs) {
 		x = rhs.x;
 		y = rhs.y;

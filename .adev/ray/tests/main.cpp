@@ -1,16 +1,12 @@
 #include <iostream>
 
-#include "asserts.h"
-#include "../vector.h"
-
-using namespace std;
+#include "test_asserts.h"
+#include "test_transform.h"
 
 int main() {
-	equals(5,5);
-	equals(3,6);
-	equalsD(2.505, 2.50, 0.1);
-	equalsD(2.505, 2.50, 0.00001);
+	runSuite( AssertTests );
+	runSuite( TransformTests );
 	
-	equals(Vector4f(0, 1, 2), Vector4f(0, 1.5, 2));
+	std::cout << "\nDone!\n";
 	return 0;
 }
