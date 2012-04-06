@@ -18,12 +18,12 @@ private:
 	double d;
 	bool testDefaults() {
 		Transform trans;
-		equalsV(Vector4f(0, 1, 0), trans.getUp(), d);
-		equalsV(Vector4f(1, 0, 0), trans.getRight(), d);
-		equalsV(Vector4f(0, 0, 1), trans.getForward(), d);
+		equals(Vector4f(0, 1, 0), trans.getUp());
+		equals(Vector4f(1, 0, 0), trans.getRight());
+		equals(Vector4f(0, 0, 1), trans.getForward());
 		
-		equalsV(Vector4f(0, 0, 0), trans.getPosition(), d);
-		equalsV(Vector4f(0, 0, 1), trans.getTarget(), d);
+		equals(Vector4f(0, 0, 0), trans.getPosition());
+		equals(Vector4f(0, 0, 1), trans.getTarget());
 		return true;
 	}
 };

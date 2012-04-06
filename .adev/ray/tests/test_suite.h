@@ -14,13 +14,15 @@ using std::string;
 	
 #define runCase(f)	\
 	beforeCase();	\
-	if (!f()) { testsFailed = true; }	\
+	if (!f()) { testsFailed++; }	\
+	totalTests++;	\
 	afterCase();
 
 class TestSuite {
 public:
 	TestSuite() {
-		testsFailed = false;
+		testsFailed = 0;
+		totalTests = 0;
 	}
 	~TestSuite() {}
 	virtual void beforeSuite() {}
@@ -33,12 +35,12 @@ public:
 		printf("Starting tests for '%s' ", getSuiteName());
 		beforeSuite();
 		runCases();
-		if (testsFailed) {
-			printf("failed!\n");
+		printf("%d of %d passed ", (totalTests - testsFailed), totalTests);
+
+		if (testsFailed > 0) {
+			printf("FAIL!\n");
 		}
-		else {
-			printf("done!\n");
-		}
+		printf("\n");
 		afterSuite();
 		
 	}
@@ -49,5 +51,6 @@ public:
 	}
 	
 protected:
-	bool testsFailed;
+	int testsFailed;
+	int totalTests;
 };

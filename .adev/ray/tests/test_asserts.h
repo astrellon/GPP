@@ -14,5 +14,6 @@ private:
 	bool test1() {
 		assert(true);
 		//assert(false);
+		return true;
 	}
 };

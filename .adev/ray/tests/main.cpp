@@ -8,5 +8,6 @@ int main() {
 	runSuite( TransformTests );
 	
 	std::cout << "\nDone!\n";
+	std::cin.get();
 	return 0;
 }
