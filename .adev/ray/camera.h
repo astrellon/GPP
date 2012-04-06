@@ -31,7 +31,7 @@ public:
 			start.x = rx;
 			start.y = ry;
 			
-		cout << "Firing ray (" << x << ',' << y << ") " << start << '\n';
+		//cout << "Firing ray (" << x << ',' << y << ") " << start << '\n';
 		}
 		else {
 			

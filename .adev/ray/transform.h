@@ -148,6 +148,7 @@ public:
 	void orbit(float dx, float dy) {
 		Vector4f toPosition = position.sub(target);
 		double len = toPosition.length();
+		std::cout << "Length: " << len << '\n';
 		toPosition.scaleBy(1.0 / len);
 		Matrix4f m;
 		m.rotate(right, dy);

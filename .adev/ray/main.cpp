@@ -16,9 +16,10 @@ int main() {
 	Camera cam;
 	//cam.getTransform().translate(0, 0, 0);
 	//cam.flipZ();
-	cam.getTransform().setTarget(Vector4f(0, 0, 0));
 	cam.getTransform().setPosition(Vector4f(0,0,-10));
-	cam.setRes(32, 24);
+	cam.getTransform().setTarget(Vector4f(0, 0, 0));
+	
+	cam.setRes(320, 240);
 	cam.setOrtho(true);
 	cam.setFov(7.0f);
 	//cam.getTransform().orbit(.5, 0);
@@ -44,16 +45,17 @@ int main() {
 	
 	//li = scene.create<Light>("Light");
 	//li->getTransform().translate(-3, -3, 0);
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 30; i++) {
 		FrameBuffer &buff = scene.render();
 		stringstream ss;
 		time_t start = time(NULL);
-		ss << "/sdcard/renderOut_" << i << ".bmp";
+		ss << "renderOut_" << i << ".bmp";
 		buff.save(ss.str().c_str(), "bmp");
 		time_t end = time(NULL);
 		printf("Done %d in %d!\n", i, (end - start) );
 		scene.getCamera().getTransform().orbit(0.1, 0.0);
 	}
 	scene.getCamera().getTransform().getWorldToObj().displayMatrix();
+	cin.get();
 	return 0;
 };

@@ -1,3 +1,5 @@
+#include "bmp.h"
+
 int Bmp::save(const char *filename) const {
 	if (filename == NULL) {
 		return -1;
@@ -70,7 +72,6 @@ int Bmp::load(const char *filename) {
 	fread(&filesize, 4, 1, input);
 	int zero;
 	fread(&zero, 4, 1, input);
-	int offset;
 	fread(&filesize, 4, 1, input);
 	
 	int headersize;

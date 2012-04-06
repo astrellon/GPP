@@ -82,4 +82,4 @@ private:
 	pixel_t **pixels;
 };
 
-#include "bmp.cpp"
+//#include "bmp.cpp"

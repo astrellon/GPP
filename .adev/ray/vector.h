@@ -47,11 +47,13 @@ public:
 		x += ix;
 		y += iy;
 		z += iz;
+		return *this;
 	}
 	inline Vector<T> &addTo(const Vector<T> &rhs) {
 		x += rhs.x;
 		y += rhs.y;
 		z += rhs.z;
+		return *this;
 	}
 	inline Vector<T> sub(const Vector<T> &rhs) const {
 		return Vector<T>(x - rhs.x, y - rhs.y, z - rhs.z, 1);
@@ -63,11 +65,13 @@ public:
 		x -= ix;
 		y -= iy;
 		z -= iz;
+		return *this;
 	}
 	inline Vector<T> &subFrom(const Vector<T> &rhs) {
 		x -= rhs.x;
 		y -= rhs.y;
 		z -= rhs.z;
+		return *this;
 	}
 	operator string() const
 	{
