@@ -163,8 +163,9 @@ public:
 		m.transformVectorConst(toPosition);
 		position = target.add(toPosition.scale(len));
 		forward = toPosition.scale(-1);
-		up = right.cross(forward);
 		right = forward.cross(up);
+		up = right.cross(forward);
+		
 		dirty = true;
 	}
 	

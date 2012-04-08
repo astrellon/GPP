@@ -10,9 +10,24 @@
 #include "frame_buffer.h"
 #include <time.h>
 
+#include "jpeg.h"
+
 using namespace std;
 
 int main() {
+
+	/*Jpeg jj(256, 256, 90.0f);
+	for (int x = 0; x < 256; x++) {
+		for (int y = 0; y < 256; y++) {
+			jj.setPixel(x, y, x, y, 255);
+		}
+	}
+
+	jj.save("testout.jpg");
+
+	return 1;
+	*/
+
 	Camera cam;
 	//cam.getTransform().translate(0, 0, 0);
 	//cam.flipZ();
@@ -45,12 +60,16 @@ int main() {
 	
 	//li = scene.create<Light>("Light");
 	//li->getTransform().translate(-3, -3, 0);
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < 1; i++) {
 		FrameBuffer &buff = scene.render();
 		stringstream ss;
 		time_t start = time(NULL);
-		ss << "renderOut_" << i << ".bmp";
-		buff.save(ss.str().c_str(), "bmp");
+		ss << "renderOut_";
+		if (i < 10) {
+			ss << '0';
+		}
+		ss << i << ".jpg";
+		buff.save(ss.str().c_str(), "jpg");
 		time_t end = time(NULL);
 		printf("Done %d in %d!\n", i, (end - start) );
 		scene.getCamera().getTransform().orbit(0.1, 0.0);

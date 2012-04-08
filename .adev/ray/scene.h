@@ -28,10 +28,10 @@ public:
 	
 	void preproc() {
 		camera.getTransform().preproc();
-		for (int i = 0; i < renderables.size(); i++) {
+		for (size_t i = 0; i < renderables.size(); i++) {
 			renderables[i]->getTransform().preproc();
 		}
-		for (int i = 0; i < lights.size(); i++) {
+		for (size_t i = 0; i < lights.size(); i++) {
 			lights[i]->getTransform().preproc();
 		}
 	}
@@ -66,8 +66,8 @@ public:
 	RayHitResult fireRay(Ray &r) const {
 		RayHitResult result;
 		//cout << "Firing " << r.getStart() << " at " << renderables.size() << " objects\n";
-		float closest = 1e36;
-		for (int i = 0; i < renderables.size(); i++) {
+		float closest = 1e36f;
+		for (size_t i = 0; i < renderables.size(); i++) {
 			//printf("Check obj %d ", i);
 			IRenderable *c = renderables[i];
 			RayHitResult hitResult;
@@ -94,10 +94,10 @@ public:
 	
 	Vector4f getLightColour(const Vector4f &pos, const Vector4f &normal) const {
 		Vector4f colour = ambientLight;
-		for (int i = 0; i < lights.size(); i++) {
+		for (size_t i = 0; i < lights.size(); i++) {
 			Light *light = lights[i];
 			Vector4f toLight = light->getPosition().sub(pos).normalise();
-			float dot = toLight.dot(normal);
+			float dot = static_cast<float>(toLight.dot(normal));
 			if (dot <= 0) {
 				continue;
 			}

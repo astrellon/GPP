@@ -122,9 +122,9 @@ public:
 	}
 	inline Vector<T> &scaleBy(double factor)
 	{
-		x *= factor;
-		y *= factor;
-		z *= factor;
+		x *= static_cast<float>(factor);
+		y *= static_cast<float>(factor);
+		z *= static_cast<float>(factor);
 		return *this;
 	}
 

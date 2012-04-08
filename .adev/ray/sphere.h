@@ -25,9 +25,9 @@ public:
 		Vector4f start = r.getStart().add(transform.getPosition());
 		//cout << "Ray start: " << start << '\n'; 
 		Vector4f dir = r.getDir();
-		float a = dir.dot(dir); 
-		float b = 2.0f * dir.dot(start); 
-		float c = start.dot(start) - (size * size);
+		float a = static_cast<float>(dir.dot(dir));
+		float b = 2.0f * static_cast<float>(dir.dot(start));
+		float c = static_cast<float>(start.dot(start)) - (size * size);
 
 		//Find discriminant 
 		float disc = b * b - 4 * a * c;
@@ -40,9 +40,9 @@ public:
 		float distSqrt = sqrtf(disc); 
 		float q; 
 		if (b < 0) 
-			q = (-b - distSqrt) * 0.5; 
+			q = (-b - distSqrt) * 0.5f; 
 		else 
-			q = (-b + distSqrt) * 0.5;
+			q = (-b + distSqrt) * 0.5f;
 
 		// compute t0 and t1 
 		float t0 = q / a; 

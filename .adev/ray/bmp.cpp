@@ -1,6 +1,6 @@
 #include "bmp.h"
 
-int Bmp::save(const char *filename) const {
+int Bmp::save(const char *filename) {
 	if (filename == NULL) {
 		return -1;
 	}
@@ -36,12 +36,12 @@ int Bmp::save(const char *filename) const {
 	
 	int i = 0;
 	for(int y = height - 1; y >= 0; y--) {
-		const pixel_t *row = pixels[y];
+		int off = y * width;
 		for (int x = 0; x < width; x++) {
-			const pixel_t &p = row[x];
-			fwrite(&p.b, 1, 1, output);
-			fwrite(&p.g, 1, 1, output);
-			fwrite(&p.r, 1, 1, output);
+			const BmpPixel &p = pixels[off + x];
+			fwrite(&p.elements[2], 1, 1, output);
+			fwrite(&p.elements[1], 1, 1, output);
+			fwrite(&p.elements[0], 1, 1, output);
 		}
 		i += 3;
 		int zero = 0;
@@ -99,12 +99,12 @@ int Bmp::load(const char *filename) {
 	
 	setSize(wid, hei);
 	for (int y = hei - 1; y >= 0; y--) {
-		pixel_t *row = pixels[y];
+		int off = y * width;
 		for (int x = 0; x < wid; x++) {
-			pixel_t &p = row[x];
-			fread(&p.b, 1, 1, input);
-			fread(&p.g, 1, 1, input);
-			fread(&p.r, 1, 1, input);
+			BmpPixel &p = pixels[off + x];
+			fread(&p.elements[2], 1, 1, input);
+			fread(&p.elements[1], 1, 1, input);
+			fread(&p.elements[0], 1, 1, input);
 		}
 		int zero = 0;
 		fread(&zero, padding, 1, input);

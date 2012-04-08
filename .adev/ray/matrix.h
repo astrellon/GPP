@@ -29,17 +29,17 @@ public:
 		double y = axis.y;
 		double z = axis.z;
 			
-		xx = t * x * z + c; 	
-		xy = t * x * y + s * z; 	
-		xz = t * x * z - s * y;
+		xx = static_cast<T>(t * x * z + c);
+		xy = static_cast<T>(t * x * y + s * z); 	
+		xz = static_cast<T>(t * x * z - s * y);
             	
-		yx = t * x * y - s * z; 	
-		yy = t * y * y + c; 	
-		yz = t * y * z + s * x;
+		yx = static_cast<T>(t * x * y - s * z); 	
+		yy = static_cast<T>(t * y * y + c);
+		yz = static_cast<T>(t * y * z + s * x);
         	
-		zx = t * x * z + s * y; 	
-		zy = t * y * z - s * x; 	
-		zz = t * z * z + c;
+		zx = static_cast<T>(t * x * z + s * y); 	
+		zy = static_cast<T>(t * y * z - s * x); 	
+		zz = static_cast<T>(t * z * z + c);
 	}
 
 	void transformVectorConst(Vector<T> &vec) const

@@ -12,7 +12,7 @@ public:
 		resX = 40;
 		resY = 30;
 		aspect = 4.0f / 3.0f;
-		fov = M_PI * 0.5f;
+		fov = static_cast<float>(M_PI) * 0.5f;
 	}
 	~Camera() {}
 	

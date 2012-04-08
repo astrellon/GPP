@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmp.h"
+#include "jpeg.h"
 #include "vector.h"
 
 class FrameBuffer {
@@ -40,6 +41,9 @@ public:
 		if (strcmp(format, "bmp") == 0) {
 			saveBmp(filename);
 		}
+		else if (strcmp(format, "jpg") == 0 || strcmp(format, "jpeg") == 0) {
+			saveJpeg(filename);
+		}
 		else {
 			printf("Unknown format '%s'\n", format);
 		}
@@ -48,6 +52,23 @@ protected:
 	
 	void saveBmp(const char *filename) const {
 		Bmp output(width, height);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				const Vector4f &p = data[y * width + x];
+				int r = (p.x > 255.0f ? 255 : (p.x < 0.0f ? 0 : (int)p.x));
+				int g = (p.y > 255.0f ? 255 : (p.y < 0.0f ? 0 : (int)p.y));
+				int b = (p.z > 255.0f ? 255 : (p.z < 0.0f ? 0 : (int)p.z));
+				output.setPixel(x, y, r, g, b);
+			}
+		}
+		int result = output.save(filename);
+		if (result != 1) {
+			printf("Unable to save framebuff as bmp: %d\n", result);
+		}
+	}
+
+	void saveJpeg(const char *filename) const {
+		Jpeg output(width, height, 90.0f);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				const Vector4f &p = data[y * width + x];
