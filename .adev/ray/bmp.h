@@ -31,4 +31,6 @@ public:
 
 };
 
-//#include "bmp.cpp"
+#ifndef _MSC_VER
+#	include "bmp.cpp"
+#endif

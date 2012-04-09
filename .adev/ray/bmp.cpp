@@ -1,4 +1,6 @@
-#include "bmp.h"
+#ifdef _MSC_VER
+#	include "bmp.h"
+#endif
 
 int Bmp::save(const char *filename) {
 	if (filename == NULL) {

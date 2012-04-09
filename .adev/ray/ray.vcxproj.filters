@@ -83,5 +83,8 @@
     <ClInclude Include="jpeg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="any.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

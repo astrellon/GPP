@@ -31,3 +31,7 @@ public:
 	virtual int load(const char *filename) {return -1;};
 
 };
+
+#ifndef _MSC_VER
+#	include "png.cpp"
+#endif

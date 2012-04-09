@@ -98,3 +98,7 @@ private:
 	static const int std_ac_chrominance_values[162];
 
 };
+
+#ifndef _MSC_VER
+#	include "jpeg.cpp"
+#endif

@@ -1,4 +1,6 @@
-#include "png.h"
+#ifdef _MSC_VER
+#	include "png.h"
+#endif
 
 int Png::save(const char *filename) {
 	if (filename == NULL) {

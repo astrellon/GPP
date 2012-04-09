@@ -1,4 +1,6 @@
-#include "jpeg.h"
+#ifdef _MSC_VER
+#	include "jpeg.h"
+#endif
 
 float round(const float x) {
 	if (x < 0) {

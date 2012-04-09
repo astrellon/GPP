@@ -11,22 +11,27 @@
 #include <time.h>
 
 #include "jpeg.h"
+#include "any.h"
+
+#include <map>
+#include <string>
 
 using namespace std;
+using namespace boost;
 
 int main() {
 
-	/*Jpeg jj(256, 256, 90.0f);
-	for (int x = 0; x < 256; x++) {
-		for (int y = 0; y < 256; y++) {
-			jj.setPixel(x, y, x, y, 255);
-		}
-	}
+	//boost::any a(5);
 
-	jj.save("testout.jpg");
+	//cout << "Value: " << boost::any_cast<int>(a) << '\n';
+	map<string, any> m;
+	m["hello"] = 5;
+	m["there"] = string("how");
+	m["are"] = 7.3f;
 
-	return 1;
-	*/
+	cout << "Map: " << any_cast<int>(m["hello"]) << ", " << any_cast<string>(m["there"]) << ", " << any_cast<float>(m["are"]) << '\n';
+
+	cin.get();
 
 	Camera cam;
 	//cam.getTransform().translate(0, 0, 0);

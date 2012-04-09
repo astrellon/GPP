@@ -73,6 +73,7 @@
     <ClInclude Include="iimage.h" />
     <ClInclude Include="irenderable.h" />
     <ClInclude Include="iscene_element.h" />
+    <ClInclude Include="any.h" />
     <ClInclude Include="jpeg.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="material.h" />
