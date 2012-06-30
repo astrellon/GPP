@@ -1,3 +1,36 @@
+#pragma once
+
+#include <string>
+#include <map>
+
+template <class T>
+int getTypeId() {
+	return __COUNTER__;
+}
+
+template <>
+int getTypeId<int>() {
+	return __COUNTER__;
+}
+
+template <>
+int getTypeId<float>() {
+	return __COUNTER__;
+}
+
+template <>
+int getTypeId<std::string>() {
+	return __COUNTER__;
+}
+
+template <>
+int getTypeId<std::map<std::string, int> >() {
+	return __COUNTER__;
+}
+
+// Simplifed boost any type to work without real time type information any only
+// uses unsafe casting.
+
 // See http://www.boost.org/libs/any for Documentation.
 
 #ifndef BOOST_ANY_INCLUDED
@@ -10,8 +43,8 @@
 // when:  July 2001
 // where: tested with BCC 5.5, MSVC 6.0, and g++ 2.95
 
-#include <algorithm>
-#include <typeinfo>
+//#include <algorithm>
+//#include <typeinfo>
 
 // See boost/python/type_id.hpp
 // TODO: add BOOST_TYPEID_COMPARE_BY_NAME to config.hpp
@@ -72,6 +105,12 @@ namespace boost
             return *this;
         }
 
+		template<typename ValueType>
+		bool isType() const
+		{
+			return getTypeId<ValueType>() == content->type();
+		}
+
     public: // queries
 
         bool empty() const
@@ -79,16 +118,12 @@ namespace boost
             return !content;
         }
 
-        const std::type_info & type() const
-        {
-            return content ? content->type() : typeid(void);
-        }
-
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+		int type() const
+		{
+			return content ? content->type() : getTypeId<void>();
+		}
+        
     private: // types
-#else
-    public: // types (public so any_cast can be non-friend)
-#endif
 
         class placeholder
         {
@@ -100,7 +135,7 @@ namespace boost
 
         public: // queries
 
-            virtual const std::type_info & type() const = 0;
+			virtual int type() const = 0;
 
             virtual placeholder * clone() const = 0;
 
@@ -118,10 +153,10 @@ namespace boost
 
         public: // queries
 
-            virtual const std::type_info & type() const
-            {
-                return typeid(ValueType);
-            }
+			virtual int type() const
+			{
+				return getTypeId<ValueType>();
+			}
 
             virtual placeholder * clone() const
             {
@@ -136,107 +171,37 @@ namespace boost
             holder & operator=(const holder &);
         };
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
-
     private: // representation
 
         template<typename ValueType>
         friend ValueType * any_cast(any *);
 
-        template<typename ValueType>
-        friend ValueType * unsafe_any_cast(any *);
-
-#else
-
-    public: // representation (public so any_cast can be non-friend)
-
-#endif
-
+		template<typename ValueType>
+        friend ValueType any_cast(any &);
+		
+	public:
         placeholder * content;
 
     };
 
-    class bad_any_cast : public std::bad_cast
-    {
-    public:
-        virtual const char * what() const throw()
-        {
-            return "boost::bad_any_cast: "
-                   "failed conversion using boost::any_cast";
-        }
-    };
-
     template<typename ValueType>
-    ValueType * any_cast(any * operand)
+    inline ValueType * any_cast(any * operand)
     {
-        return operand && 
-#ifdef BOOST_AUX_ANY_TYPE_ID_NAME
-            std::strcmp(operand->type().name(), typeid(ValueType).name()) == 0
-#else
-            operand->type() == typeid(ValueType)
-#endif
-            ? &static_cast<any::holder<ValueType> *>(operand->content)->held
-            : 0;
+		return &static_cast<any::holder<ValueType> *>(operand->content)->held;
     }
 
     template<typename ValueType>
     inline const ValueType * any_cast(const any * operand)
     {
         return any_cast<ValueType>(const_cast<any *>(operand));
-    }
+	}
 
-    template<typename ValueType>
-    ValueType any_cast(any & operand)
-    {
-        typedef remove_reference<ValueType>::type nonref;
+	template <typename ValueType>
+	inline ValueType any_cast(any & operand)
+	{
+		return static_cast<any::holder<ValueType> *>(operand.content)->held;
+	}
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-        // If 'nonref' is still reference type, it means the user has not
-        // specialized 'remove_reference'.
-
-        // Please use BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION macro
-        // to generate specialization of remove_reference for your class
-        // See type traits library documentation for details
-        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
-#endif
-
-        nonref * result = any_cast<nonref>(&operand);
-        if(!result)
-            //boost::throw_exception(bad_any_cast());
-			throw 1;
-        return *result;
-    }
-
-    template<typename ValueType>
-    inline ValueType any_cast(const any & operand)
-    {
-        typedef BOOST_DEDUCED_TYPENAME remove_reference<ValueType>::type nonref;
-
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-        // The comment in the above version of 'any_cast' explains when this
-        // assert is fired and what to do.
-        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
-#endif
-
-        return any_cast<const nonref &>(const_cast<any &>(operand));
-    }
-
-    // Note: The "unsafe" versions of any_cast are not part of the
-    // public interface and may be removed at any time. They are
-    // required where we know what type is stored in the any and can't
-    // use typeid() comparison, e.g., when our types may travel across
-    // different shared libraries.
-    template<typename ValueType>
-    inline ValueType * unsafe_any_cast(any * operand)
-    {
-        return &static_cast<any::holder<ValueType> *>(operand->content)->held;
-    }
-
-    template<typename ValueType>
-    inline const ValueType * unsafe_any_cast(const any * operand)
-    {
-        return unsafe_any_cast<ValueType>(const_cast<any *>(operand));
-    }
 }
 
 // Copyright Kevlin Henney, 2000, 2001, 2002. All rights reserved.

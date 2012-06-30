@@ -29,7 +29,11 @@ int main() {
 	m["there"] = string("how");
 	m["are"] = 7.3f;
 
-	cout << "Map: " << any_cast<int>(m["hello"]) << ", " << any_cast<string>(m["there"]) << ", " << any_cast<float>(m["are"]) << '\n';
+	cout << "Check int: " << m["hello"].isType<int>() << ", " << m["there"].isType<int>() << ", " << m["are"].isType<int>() << '\n';
+	cout << "Check str: " << m["hello"].isType<string>() << ", " << m["there"].isType<string>() << ", " << m["are"].isType<string>() << '\n';
+	cout << "Check flo: " << m["hello"].isType<float>() << ", " << m["there"].isType<float>() << ", " << m["are"].isType<float>() << '\n';
+
+	cout << "Map: " << any_cast<int>(m["hello"]) << ", " << *any_cast<string>(&m["there"]) << ", " << *any_cast<float>(&m["are"]) << '\n';
 
 	cin.get();
 

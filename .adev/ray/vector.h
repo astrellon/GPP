@@ -9,14 +9,14 @@
 using std::string;
 using std::stringstream;
 using std::ostream;
-
+/*
 #ifndef _WIN32
 inline int abs(int x)
 {
 	return abs(x);
 }
 #endif
-
+*/
 template <class T>
 class Vector {
 public:

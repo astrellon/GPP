@@ -567,4 +567,6 @@ int Jpeg::save(const char *filename) {
 	writeWord(0xFFD9);
 
 	fclose(output);
+
+	return 1;
 }
