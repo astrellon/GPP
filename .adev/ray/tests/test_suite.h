@@ -1,10 +1,9 @@
 #pragma once
 
-#include "asserts.h"
-#include "stdio.h"
-
 #include <string>
+#include <vector>
 using std::string;
+using std::vector;
 
 #define runSuite(s)	\
 	{	\
@@ -49,7 +48,7 @@ public:
 	virtual const char *getSuiteName() const {
 		return "Unnamed";
 	}
-	
+
 protected:
 	int testsFailed;
 	int totalTests;

@@ -1,6 +1,6 @@
 #pragma once
 
-#define TEST_VECTORS
+//#define TEST_VECTORS
 #define IN_TEST_CASE
 
 #include <iostream>
@@ -119,21 +119,21 @@ bool _equals(const char *file, unsigned int line, const Vector<T> &expected, con
 #	define assert(a) \
 	if (!_assert(a, __FILE__, __LINE__)) { return false; }
 
-#	define equals(x, y) \
-	if (!_equals(__FILE__, __LINE__, x, y, false)) { return false; }
-#	define equalsDelta(x, y, d) \
-	if (!_equals(__FILE__, __LINE__, x, y, false, d)) { return false; }
+#	define equals(expected, actual) \
+	if (!_equals(__FILE__, __LINE__, expected, actual, false)) { return false; }
+#	define equalsDelta(expected, actual, delta) \
+	if (!_equals(__FILE__, __LINE__, expected, actual, false, delta)) { return false; }
 
-#	define notEquals(x, y) \
-	if (!_equals(__FILE__, __LINE__, x, y, true)) { return false; }
-#	define notEqualsDelta(x, y, d) \
-	if (!_equals(__FILE__, __LINE__, x, y, true, d)) { return false; }
+#	define notEquals(expected, actual) \
+	if (!_equals(__FILE__, __LINE__, expected, actual, true)) { return false; }
+#	define notEqualsDelta(expected, actual, delta) \
+	if (!_equals(__FILE__, __LINE__, expected, actual, true, delta)) { return false; }
 #else
 #	define assert(a) _assert(a, __FILE__, __LINE__)
 
-#	define equals(x, y) _equals(__FILE__, __LINE__, x, y, false)
-#	define equalsDelta(x, y, d) _equals(__FILE__, __LINE__, x, y, false, d)
+#	define equals(expected, actual) _equals(__FILE__, __LINE__, expected, actual, false)
+#	define equalsDelta(expected, actual, delta) _equals(__FILE__, __LINE__, expected, actual, false, delta)
 
-#	define notEquals(x, y) _equals(__FILE__, __LINE__, x, y, true)
-#	define notEqualsDelta(x, y, d) _equals(__FILE__, __LINE__, x, y, true, d)
+#	define notEquals(expected, actual) _equals(__FILE__, __LINE__, expected, actual, true)
+#	define notEqualsDelta(expected, actual, delta) _equals(__FILE__, __LINE__, expected, actual, true, delta)
 #endif

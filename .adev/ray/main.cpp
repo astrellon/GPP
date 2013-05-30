@@ -21,22 +21,6 @@ using namespace boost;
 
 int main() {
 
-	//boost::any a(5);
-
-	//cout << "Value: " << boost::any_cast<int>(a) << '\n';
-	map<string, any> m;
-	m["hello"] = 5;
-	m["there"] = string("how");
-	m["are"] = 7.3f;
-
-	cout << "Check int: " << m["hello"].isType<int>() << ", " << m["there"].isType<int>() << ", " << m["are"].isType<int>() << '\n';
-	cout << "Check str: " << m["hello"].isType<string>() << ", " << m["there"].isType<string>() << ", " << m["are"].isType<string>() << '\n';
-	cout << "Check flo: " << m["hello"].isType<float>() << ", " << m["there"].isType<float>() << ", " << m["are"].isType<float>() << '\n';
-
-	cout << "Map: " << any_cast<int>(m["hello"]) << ", " << *any_cast<string>(&m["there"]) << ", " << *any_cast<float>(&m["are"]) << '\n';
-
-	cin.get();
-
 	Camera cam;
 	//cam.getTransform().translate(0, 0, 0);
 	//cam.flipZ();
@@ -69,7 +53,7 @@ int main() {
 	
 	//li = scene.create<Light>("Light");
 	//li->getTransform().translate(-3, -3, 0);
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 100; i++) {
 		FrameBuffer &buff = scene.render();
 		stringstream ss;
 		time_t start = time(NULL);
@@ -77,11 +61,11 @@ int main() {
 		if (i < 10) {
 			ss << '0';
 		}
-		ss << i << ".jpg";
-		buff.save(ss.str().c_str(), "jpg");
+		ss << i << ".bmp";
+		buff.save(ss.str().c_str(), "bmp");
 		time_t end = time(NULL);
 		printf("Done %d in %d!\n", i, (end - start) );
-		scene.getCamera().getTransform().orbit(0.1, 0.0);
+			scene.getCamera().getTransform().orbit(0.1, 0.0);
 	}
 	scene.getCamera().getTransform().getWorldToObj().displayMatrix();
 	cin.get();
